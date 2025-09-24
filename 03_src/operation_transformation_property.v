@@ -11,6 +11,18 @@ Class Eq A :=
     eqb : A -> A -> bool
   }.
 
+Notation "x =? y" := (eqb x y).
+
+Instance eqNat : Eq nat :=
+ {
+  eqb := Nat.eqb
+ }.
+
+Instance eqBool : Eq bool :=
+ {
+  eqb := Bool.eqb
+ }.
+
 Context {A: Type} `{Eq A}.
 
 
@@ -29,22 +41,16 @@ Fixpoint insert (A : Type) (p : nat) (x : A) (l : list A) : option (list A) :=
 Compute insert nat 0 9 [1].
 Compute insert bool 2 true [false;false;false].
 
-(* 削除した要素の位置情報xを持つdeleted_elem型を導入 *)
-Inductive deleted_elem (A : Type) : Type :=
- | Deleted (x : A) (l : list A)
- | Error.
-
-Fixpoint delete (A : Type) (p : nat) (x : A) (l : list A) `{Eq A} : deleted_elem A :=
-  (* TODO: リストの位置pの要素と削除する文字x の等価性判定を実装する *)
+Fixpoint delete (A : Type) (p : nat) (x : A) (l : list A) `{Eq A} : option (list A) :=
   match p, l with
-  | 0, h :: t => Deleted A h t
-  | 0, [] => Error A
+  | 0, h :: t => if eqb h x then Some t else None
+  | 0, [] => None
   | S p', h :: t =>
       match delete A p' x t with
-      | Deleted _ x l'  => Deleted A x (h :: l')
-      | Error _  => Error A
+      | Some t'  => Some (h :: t')
+      | None  => None
       end
-  | S p', [] => Error A
+  | S p', [] => None
   end.
 
 Compute delete nat 0 1 [1;2;3].
@@ -57,18 +63,15 @@ Inductive Op (A : Type) :=
  | OpIns : nat -> A -> list A -> Op A
  | OpDel : nat -> A -> list A -> Op A.
 
-Inductive op_handle_dif_type (A : Type) : Type :=
- | OpInsHandle (result : option (list A))
- | OpDelHandle (result : deleted_elem A).
-
 (* 操作に対して、解釈関数interp_op を定義 *)
-Definition interp_op (A : Type) (op : Op A) (l : list A) `{Eq A} : op_handle_dif_type A :=
+Definition interp_op (A : Type) (op : Op A) (l : list A) `{Eq A} : option (list A):=
   match op with
-  | OpIns _ p x l' => OpInsHandle A (insert _ p x l')
-  | OpDel _ p x l' => OpDelHandle A (delete _ p x l')
+  | OpIns _ p x l' => insert _ p x l'
+  | OpDel _ p x l' => delete _ p x l'
   end.
 
-(* 操作間の変換関数it_op を定義 *)
+
+TODO:操作間の変換関数it_op を定義
 (*Definition it_op :=*)
 
 (* delete の引数に削除する文字xを追加することで元のデータに戻れるようにする必要がある*)
