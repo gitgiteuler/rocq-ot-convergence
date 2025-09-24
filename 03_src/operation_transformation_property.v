@@ -32,18 +32,18 @@ Compute insert bool 2 true [false;false;false].
 (* 削除した要素の位置情報xを持つdeleted_elem型を導入 *)
 Inductive deleted_elem (A : Type) : Type :=
  | Deleted (x : A) (l : list A)
- | NotFound.
+ | Error.
 
 Fixpoint delete (A : Type) (p : nat) (x : A) (l : list A) `{Eq A} : deleted_elem A :=
   match p, l with
   | 0, h :: t => Deleted A h t
-  | 0, [] => NotFound A
+  | 0, [] => Error A
   | S p', h :: t =>
       match delete A p' x t with
       | Deleted _ x l'  => Deleted A x (h :: l')
-      | NotFound _  => NotFound A
+      | Error _  => Error A
       end
-  | S p', [] => NotFound A
+  | S p', [] => Error A
   end.
 
 Compute delete nat 0 1 [1;2;3].
@@ -53,13 +53,17 @@ Compute delete bool 0 true [true;false;true].
 (* 操作の型を定義する型コンストラクタ *)
 Inductive Op (A : Type) :=
  | OpIns : nat -> A -> list A -> Op A
- | OpDel : nat -> list A -> Op A.
+ | OpDel : nat -> A -> list A -> Op A.
+
+Inductive op_handle_dif_type (A : Type) : Type :=
+ | OpInsHandle (result : option (list A))
+ | OpDelHandle (result : deleted_elem A).
 
 (* 操作に対して、解釈関数interp_op を定義 *)
-Definition interp_op (A : Type) (op : Op A) (l : list A) : option (list A) :=
+Definition interp_op (A : Type) (op : Op A) (l : list A) `{Eq A} : op_handle_dif_type A :=
   match op with
-  | OpIns _ p x l => insert _ p x l
-  | OpDel _ p l => delete _ p l
+  | OpIns _ p x l' => OpInsHandle A (insert _ p x l')
+  | OpDel _ p x l' => OpDelHandle A (delete _ p x l')
   end.
 
 (* 操作間の変換関数it_op を定義 *)
