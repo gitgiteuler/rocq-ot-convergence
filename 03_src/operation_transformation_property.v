@@ -35,6 +35,7 @@ Inductive deleted_elem (A : Type) : Type :=
  | Error.
 
 Fixpoint delete (A : Type) (p : nat) (x : A) (l : list A) `{Eq A} : deleted_elem A :=
+  (* TODO: リストの位置pの要素と削除する文字x の等価性判定を実装する *)
   match p, l with
   | 0, h :: t => Deleted A h t
   | 0, [] => Error A
@@ -49,6 +50,7 @@ Fixpoint delete (A : Type) (p : nat) (x : A) (l : list A) `{Eq A} : deleted_elem
 Compute delete nat 0 1 [1;2;3].
 Compute delete nat 5 3 [1;2;3]. (* リストの長さ以上の要素に対する操作に対して、"None"を返す*)
 Compute delete bool 0 true [true;false;true].
+Compute delete bool 0 true [false;false;false]. 
 
 (* 操作の型を定義する型コンストラクタ *)
 Inductive Op (A : Type) :=
