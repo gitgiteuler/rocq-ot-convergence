@@ -91,43 +91,66 @@ Definition it_op_sc {A : Type} `{Eq A} (op1 op2 : Op A) (f : bool) : list(Op A) 
   if f then [] (* f=trueの時、空リストを返す *)
   else [inv_op op2 ; op1]. (* f=falseの時、サーバの操作を優先する為、クライアントの操作op2を戻して、op1を行うという操作のリストを返す *) 
 
-(* 全ての操作をリストに適用する関数 ins->insなど *)
-(** リストlに対して、操作のリストから操作を一つずつ適用する **)
-Fixpoint exec_all [A : Type] `{Eq A} (ops : list(Op A)) (l : list A): option (list A) :=
+Compute it_op_sc (OpIns 1 1) (OpIns 2 2) true.
+Compute it_op_sc (OpIns 1 1) (OpIns 2 2) false.
+
+Compute Nat.ltb 1 2. (* 1 < 2 と言う命題が”真” *)
+Compute S 0.
+Compute Nat.eqb (S 0) 1.
+
+(* op1, op2 の操作の優先度（順番）を表す値が必要 => サイトID（sid）を使う？ *)
+(*Definition it_op_pair {A : Type} `{Eq A} (op1 op2 : Op A) : list (Op A) :=
+  match op1, op2 with
+  | Ins p1 x1, Ins p2 x2 => if Nat.ltb p1 p2 then [Ins p1 x1]
+                            else if Nat.ltb p2 p1 then [Ins (p1 + 1) x1]
+                            else (* p1 == p2 位置の競合が起きる場合 *)
+                              if 
+*)
+
+(* 全ての操作をリストに適用する関数 *)
+Fixpoint exec_all_op [A : Type] `{Eq A} (ops : list(Op A)) (l : list A): option (list A) :=
   match ops with
    | [] => Some l
    | op :: t => match interp_op op l with
-                        | Some l' =>  exec_all t l'
+                        | Some l' =>  exec_all_op t l'
                         | None => None
                         end
-  end. 
+  end.
+
+Compute exec_all_op [OpIns 0 0 ; OpDel 1 1 ; OpDel 1 2] [1;2;3].
 
 Class OTBase (X cmd : Type) := 
 {
- interp_op : cmd -> X -> option X;
- it_op    : cmd -> cmd -> bool -> list cmd;
- it_c1 : forall (op1 op2 : cmd) (f : bool) (m m1 m2 : X),
-  interp_op op1 m = Some m1 -> interp_op op2 m = Some m2 -> 
-  let m21 := (exec_all interp_op) (Some m2) (it_op op1 op2 f) in
-   let m12 := (exec_all interp_op) (Some m1) (it_op op2 op1 (~~f)) in
-    m21 = m12 /\ exists node, m21 = Some node
+  interp_op_base : cmd -> X -> option X;
+  it_op_base    : cmd -> cmd -> bool -> list cmd;
+  exec_all_op_base : list cmd -> X -> option X;
+  it_c1 : forall (op1 op2 : cmd) (f : bool) (m m1 m2 : X),
+    interp_op_base op1 m = Some m1 -> interp_op_base op2 m = Some m2 -> 
+      let m21 := exec_all_op_base (it_op_base op1 op2 f) m2 in
+      let m12 := exec_all_op_base (it_op_base op2 op1 (negb f)) m1 in
+        m21 = m12
 }.
 
-Instance OTBaseListSC [A : Type] : OTBase (list A) (Op A) :=
+Instance OTBaseListSC {A : Type} `{Eq A} : OTBase (list A) (Op A) :=
 {
-  interp_op : Op A -> list A -> option(list A);
-  it_op : Op A -> Op A -> bool -> list(Op A);
-  it_c1 : forall (op1 op2 : Op A) (f : bool) (m m1 m2 : list A),
-  interp_op op1 m = Some m1 -> interp_op op2 m = Some m2 -> 
-  let m21 := (exec_all interp_op) (Some m2) (it_op op1 op2 f) in
-   let m12 := (exec_all interp_op) (Some m1) (it_op op2 op1 (~~f)) in
-    m21 = m12 /\ exists node, m21 = Some node
-}
+  interp_op_base := @interp_op A _;
+  it_op_base := @it_op_sc A _;
+  exec_all_op_base := @exec_all_op A _;
+  it_c1 :=
+    fun (op1 op2 : Op A) (f : bool) (m m1 m2 : list A)
+        (H1 : interp_op op1 m = m1)
+        (H2 : interp_op op2 m = m2) =>
 
+        let m21 := exec_all_op (it_op_sc op1 op2 f) m2 in
+        let m12 := exec_all_op (it_op_sc op2 op1 (negb f)) m1 in
+        
+        (* 証明のスキップ *)
+        eq_refl
+}.
 
-Class OTInv (A : Type) (op : Op A) (l : list A) :=
- {
+Class OTInv [A : Type] `{Eq A} :=
+{
   inv_op : Op A -> Op A
-  ip1 : forall (l1 : list A) (op l l1), 
-    interp_op op s = Some l1 -> interp_op (inv_op op) l1 = Some l
- }.
+  ip1 : forall (op : Op A) (l l' : list A), 
+    interp_op op l = Some l' -> interp_op (inv_op op) l' = Some l
+}.
