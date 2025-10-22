@@ -1,0 +1,593 @@
+DIGEST 792496a1f85f1368810e2c6c041b196b
+FOTRocq.OtDef
+R27:32 Stdlib.Program.Basics <> <> lib
+R50:56 OTRocq.Commons <> <> lib
+R74:82 OTRocq.ListTools <> <> lib
+sec 94:100 <> ExecAll
+var  113:113 ExecAll C
+var  124:124 ExecAll X
+def 147:154 <> exec_all
+R162:165 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R161:161 OTRocq.OtDef <> ExecAll.C var
+R167:170 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R166:166 OTRocq.OtDef <> ExecAll.X var
+R171:176 Corelib.Init.Datatypes <> option ind
+R178:178 OTRocq.OtDef <> ExecAll.X var
+binder 157:157 <> f:3
+R184:188 mathcomp.ssreflect.seq <> foldl def
+R191:194 Corelib.Program.Basics <> flip def
+binder 201:201 <> c:4
+R206:209 OTRocq.Commons <> bind def
+R212:212 OTRocq.OtDef <> f:3 var
+R214:214 OTRocq.OtDef <> c:4 var
+prf 227:239 <> exec_all_none
+R247:249 mathcomp.ssreflect.seq <> seq abbrev
+R251:251 OTRocq.OtDef <> ExecAll.C var
+binder 242:243 <> cs:5
+binder 255:255 <> f:6
+R284:286 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R260:267 OTRocq.OtDef <> exec_all def
+R269:269 OTRocq.OtDef <> f:6 var
+R274:277 Corelib.Init.Datatypes <> None constr
+R279:279 OTRocq.OtDef <> ExecAll.X var
+R282:283 OTRocq.OtDef <> cs:5 var
+R287:290 Corelib.Init.Datatypes <> None constr
+prf 318:329 <> exec_all_ind
+binder 331:331 <> f:7
+binder 333:333 <> t:8
+binder 335:335 <> v:9
+binder 337:338 <> vs:10
+R363:365 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R341:348 OTRocq.OtDef <> exec_all def
+R350:350 OTRocq.OtDef <> f:7 var
+R352:352 OTRocq.OtDef <> t:8 var
+R356:359 mathcomp.ssreflect.seq <> ::seq_scope:x_'::'_x not
+R355:355 OTRocq.OtDef <> v:9 var
+R360:361 OTRocq.OtDef <> vs:10 var
+R366:373 OTRocq.OtDef <> exec_all def
+R375:375 OTRocq.OtDef <> f:7 var
+R378:381 OTRocq.Commons <> bind def
+R389:389 OTRocq.OtDef <> t:8 var
+R384:384 OTRocq.OtDef <> f:7 var
+R386:386 OTRocq.OtDef <> v:9 var
+R392:393 OTRocq.OtDef <> vs:10 var
+prf 424:441 <> exec_all_rcons_ind
+binder 443:443 <> f:11
+binder 445:446 <> vs:12
+binder 448:448 <> v:13
+binder 450:450 <> t:14
+R485:487 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R460:467 OTRocq.OtDef <> exec_all def
+R469:469 OTRocq.OtDef <> f:11 var
+R471:471 OTRocq.OtDef <> t:14 var
+R474:478 mathcomp.ssreflect.seq <> rcons def
+R483:483 OTRocq.OtDef <> v:13 var
+R480:481 OTRocq.OtDef <> vs:12 var
+R488:491 OTRocq.Commons <> bind def
+R500:507 OTRocq.OtDef <> exec_all def
+R509:509 OTRocq.OtDef <> f:11 var
+R511:511 OTRocq.OtDef <> t:14 var
+R513:514 OTRocq.OtDef <> vs:12 var
+R494:494 OTRocq.OtDef <> f:11 var
+R496:496 OTRocq.OtDef <> v:13 var
+R530:537 OTRocq.OtDef <> exec_all def
+R540:544 mathcomp.ssreflect.seq <> cats1 thm
+R546:554 mathcomp.ssreflect.seq <> foldl_cat thm
+R557:560 Corelib.Program.Basics <> flip def
+R530:537 OTRocq.OtDef <> exec_all def
+R530:537 OTRocq.OtDef <> exec_all def
+R540:544 mathcomp.ssreflect.seq <> cats1 thm
+R540:544 mathcomp.ssreflect.seq <> cats1 thm
+R546:554 mathcomp.ssreflect.seq <> foldl_cat thm
+R546:554 mathcomp.ssreflect.seq <> foldl_cat thm
+R557:560 Corelib.Program.Basics <> flip def
+R557:560 Corelib.Program.Basics <> flip def
+prf 578:590 <> exec_all_cons
+binder 592:592 <> f:15
+binder 594:594 <> c:16
+binder 596:597 <> cs:17
+binder 599:599 <> t:18
+R631:633 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R602:609 OTRocq.OtDef <> exec_all def
+R611:611 OTRocq.OtDef <> f:15 var
+R614:617 Corelib.Init.Datatypes <> Some constr
+R619:619 OTRocq.OtDef <> t:18 var
+R624:627 mathcomp.ssreflect.seq <> ::seq_scope:x_'::'_x not
+R623:623 OTRocq.OtDef <> c:16 var
+R628:629 OTRocq.OtDef <> cs:17 var
+R634:641 OTRocq.OtDef <> exec_all def
+R643:643 OTRocq.OtDef <> f:15 var
+R646:646 OTRocq.OtDef <> f:15 var
+R648:648 OTRocq.OtDef <> c:16 var
+R650:650 OTRocq.OtDef <> t:18 var
+R654:655 OTRocq.OtDef <> cs:17 var
+R674:677 Corelib.Program.Basics <> flip def
+R674:677 Corelib.Program.Basics <> flip def
+R674:677 Corelib.Program.Basics <> flip def
+prf 692:703 <> exec_all_cat
+binder 705:705 <> f:19
+binder 707:709 <> cs1:20
+binder 711:713 <> cs2:21
+binder 715:715 <> t:22
+R750:773 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R718:725 OTRocq.OtDef <> exec_all def
+R727:727 OTRocq.OtDef <> f:19 var
+R730:733 Corelib.Init.Datatypes <> Some constr
+R735:735 OTRocq.OtDef <> t:22 var
+R742:745 mathcomp.ssreflect.seq <> ::seq_scope:x_'++'_x not
+R739:741 OTRocq.OtDef <> cs1:20 var
+R746:748 OTRocq.OtDef <> cs2:21 var
+R774:781 OTRocq.OtDef <> exec_all def
+R783:783 OTRocq.OtDef <> f:19 var
+R786:793 OTRocq.OtDef <> exec_all def
+R795:795 OTRocq.OtDef <> f:19 var
+R798:801 Corelib.Init.Datatypes <> Some constr
+R803:803 OTRocq.OtDef <> t:22 var
+R806:808 OTRocq.OtDef <> cs1:20 var
+R811:813 OTRocq.OtDef <> cs2:21 var
+R857:864 mathcomp.ssreflect.seq <> cat_cons thm
+R867:879 OTRocq.OtDef <> exec_all_cons thm
+R857:864 mathcomp.ssreflect.seq <> cat_cons thm
+R857:864 mathcomp.ssreflect.seq <> cat_cons thm
+R867:879 OTRocq.OtDef <> exec_all_cons thm
+R867:879 OTRocq.OtDef <> exec_all_cons thm
+R867:879 OTRocq.OtDef <> exec_all_cons thm
+R867:879 OTRocq.OtDef <> exec_all_cons thm
+R932:944 OTRocq.OtDef <> exec_all_none thm
+R932:944 OTRocq.OtDef <> exec_all_none thm
+R932:944 OTRocq.OtDef <> exec_all_none thm
+R932:944 OTRocq.OtDef <> exec_all_none thm
+R932:944 OTRocq.OtDef <> exec_all_none thm
+R932:944 OTRocq.OtDef <> exec_all_none thm
+prf 959:972 <> exec_all_eqfun
+binder 975:976 <> f1:23
+binder 978:979 <> f2:24
+R991:994 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R985:988 mathcomp.ssreflect.ssrfun <> ::type_scope:x_'=1'_x not
+R983:984 OTRocq.OtDef <> f1:23 var
+R989:990 OTRocq.OtDef <> f2:24 var
+R1007:1009 mathcomp.ssreflect.seq <> seq abbrev
+R1011:1011 OTRocq.OtDef <> ExecAll.C var
+binder 1003:1003 <> c:25
+R1019:1024 Corelib.Init.Datatypes <> option ind
+R1026:1026 OTRocq.OtDef <> ExecAll.X var
+binder 1015:1015 <> m:26
+R1047:1049 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R1032:1039 OTRocq.OtDef <> exec_all def
+R1041:1042 OTRocq.OtDef <> f1:23 var
+R1044:1044 OTRocq.OtDef <> m:26 var
+R1046:1046 OTRocq.OtDef <> c:25 var
+R1050:1057 OTRocq.OtDef <> exec_all def
+R1059:1060 OTRocq.OtDef <> f2:24 var
+R1062:1062 OTRocq.OtDef <> m:26 var
+R1064:1064 OTRocq.OtDef <> c:25 var
+R1114:1117 OTRocq.Commons <> bind def
+R1120:1123 Corelib.Program.Basics <> flip def
+R1114:1117 OTRocq.Commons <> bind def
+R1114:1117 OTRocq.Commons <> bind def
+R1120:1123 Corelib.Program.Basics <> flip def
+R1120:1123 Corelib.Program.Basics <> flip def
+R1174:1180 OTRocq.OtDef ExecAll <> sec
+prf 1194:1208 <> exec_all_compat
+binder 1211:1212 <> C1:27
+binder 1214:1215 <> C2:28
+binder 1217:1217 <> Z:29
+R1225:1230 Corelib.Init.Datatypes <> option ind
+R1232:1232 OTRocq.OtDef <> Z:29 var
+binder 1221:1221 <> m:30
+R1240:1242 mathcomp.ssreflect.seq <> seq abbrev
+R1244:1245 OTRocq.OtDef <> C1:27 var
+binder 1236:1236 <> l:31
+binder 1248:1249 <> f1:32
+R1259:1262 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R1257:1258 OTRocq.OtDef <> C1:27 var
+R1263:1264 OTRocq.OtDef <> C2:28 var
+binder 1252:1253 <> f2:33
+R1303:1305 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R1270:1277 OTRocq.OtDef <> exec_all def
+R1279:1280 OTRocq.OtDef <> f1:32 var
+R1282:1282 OTRocq.OtDef <> m:30 var
+R1284:1288 mathcomp.ssreflect.seq <> ::seq_scope:'['_'seq'_x_'|'_x_'<-'_x_']' not
+R1293:1295 mathcomp.ssreflect.seq <> ::seq_scope:'['_'seq'_x_'|'_x_'<-'_x_']' not
+R1297:1300 mathcomp.ssreflect.seq <> ::seq_scope:'['_'seq'_x_'|'_x_'<-'_x_']' not
+R1302:1302 mathcomp.ssreflect.seq <> ::seq_scope:'['_'seq'_x_'|'_x_'<-'_x_']' not
+binder 1296:1296 <> i:34
+binder 1296:1296 <> i:35
+R1289:1290 OTRocq.OtDef <> f2:33 var
+R1292:1292 OTRocq.OtDef <> i:34 var
+R1301:1301 OTRocq.OtDef <> l:31 var
+R1306:1313 OTRocq.OtDef <> exec_all def
+R1318:1321 mathcomp.ssreflect.ssrfun <> ::function_scope:x_'\o'_x not
+R1316:1317 OTRocq.OtDef <> f1:32 var
+R1322:1323 OTRocq.OtDef <> f2:33 var
+R1326:1326 OTRocq.OtDef <> m:30 var
+R1328:1328 OTRocq.OtDef <> l:31 var
+R1357:1364 OTRocq.OtDef <> exec_all def
+R1357:1364 OTRocq.OtDef <> exec_all def
+R1357:1364 OTRocq.OtDef <> exec_all def
+R1378:1386 OTRocq.ListTools <> foldl_map thm
+R1392:1395 Corelib.Program.Basics <> flip def
+R1398:1401 Corelib.ssr.ssrfun <> comp def
+R1378:1386 OTRocq.ListTools <> foldl_map thm
+R1378:1386 OTRocq.ListTools <> foldl_map thm
+R1392:1395 Corelib.Program.Basics <> flip def
+R1392:1395 Corelib.Program.Basics <> flip def
+R1398:1401 Corelib.ssr.ssrfun <> comp def
+R1398:1401 Corelib.ssr.ssrfun <> comp def
+R1416:1428 OTRocq.OtDef <> exec_all_none thm
+R1416:1428 OTRocq.OtDef <> exec_all_none thm
+R1416:1428 OTRocq.OtDef <> exec_all_none thm
+R1416:1428 OTRocq.OtDef <> exec_all_none thm
+R1416:1428 OTRocq.OtDef <> exec_all_none thm
+rec 1443:1448 <> OTBase
+proj 1471:1476 <> interp
+proj 1503:1504 <> it
+proj 1545:1549 <> it_c1
+binder 1451:1451 <> X:36
+binder 1453:1455 <> cmd:37
+R1483:1486 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R1480:1482 OTRocq.OtDef <> cmd:37 var
+R1488:1491 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R1487:1487 OTRocq.OtDef <> X:36 var
+R1492:1497 Corelib.Init.Datatypes <> option ind
+R1499:1499 OTRocq.OtDef <> X:36 var
+R1515:1518 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R1512:1514 OTRocq.OtDef <> cmd:37 var
+R1522:1525 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R1519:1521 OTRocq.OtDef <> cmd:37 var
+R1530:1533 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R1526:1529 Corelib.Init.Datatypes <> bool ind
+R1534:1537 Corelib.Init.Datatypes <> list ind
+R1539:1541 OTRocq.OtDef <> cmd:37 var
+R1571:1573 OTRocq.OtDef <> cmd:37 var
+binder 1561:1563 <> op1:41
+binder 1565:1567 <> op2:42
+R1581:1584 Corelib.Init.Datatypes <> bool ind
+binder 1577:1577 <> f:43
+binder 1587:1587 <> m:44
+R1598:1598 OTRocq.OtDef <> X:36 var
+binder 1590:1591 <> m1:45
+binder 1593:1594 <> m2:46
+R1626:1629 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R1616:1618 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R1604:1609 OTRocq.OtDef <> interp:39 meth
+R1615:1615 OTRocq.OtDef <> m:44 var
+R1611:1613 OTRocq.OtDef <> op1:41 var
+R1619:1622 Corelib.Init.Datatypes <> Some constr
+R1624:1625 OTRocq.OtDef <> m1:45 var
+R1652:1658 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R1642:1644 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R1630:1635 OTRocq.OtDef <> interp:39 meth
+R1641:1641 OTRocq.OtDef <> m:44 var
+R1637:1639 OTRocq.OtDef <> op2:42 var
+R1645:1648 Corelib.Init.Datatypes <> Some constr
+R1650:1651 OTRocq.OtDef <> m2:46 var
+R1671:1678 OTRocq.OtDef <> exec_all def
+R1680:1685 OTRocq.OtDef <> interp:39 meth
+R1689:1692 Corelib.Init.Datatypes <> Some constr
+R1694:1695 OTRocq.OtDef <> m2:46 var
+R1699:1700 OTRocq.OtDef <> it:40 meth
+R1710:1710 OTRocq.OtDef <> f:43 var
+R1706:1708 OTRocq.OtDef <> op2:42 var
+R1702:1704 OTRocq.OtDef <> op1:41 var
+binder 1663:1665 <> m21:47
+R1731:1738 OTRocq.OtDef <> exec_all def
+R1740:1745 OTRocq.OtDef <> interp:39 meth
+R1749:1752 Corelib.Init.Datatypes <> Some constr
+R1754:1755 OTRocq.OtDef <> m1:45 var
+R1759:1760 OTRocq.OtDef <> it:40 meth
+R1771:1772 Corelib.ssr.ssrbool <> ::bool_scope:'~~'_x not
+R1773:1773 OTRocq.OtDef <> f:43 var
+R1766:1768 OTRocq.OtDef <> op1:41 var
+R1762:1764 OTRocq.OtDef <> op2:42 var
+binder 1723:1725 <> m12:48
+R1793:1796 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R1787:1789 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R1784:1786 OTRocq.OtDef <> m21:47 var
+R1790:1792 OTRocq.OtDef <> m12:48 var
+R1797:1803 Corelib.Init.Logic <> ::type_scope:'exists'_x_'..'_x_','_x not
+R1808:1809 Corelib.Init.Logic <> ::type_scope:'exists'_x_'..'_x_','_x not
+binder 1804:1807 <> node:49
+R1813:1815 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R1810:1812 OTRocq.OtDef <> m21:47 var
+R1816:1819 Corelib.Init.Datatypes <> Some constr
+R1821:1824 OTRocq.OtDef <> node:49 var
+def 1838:1846 <> transform
+binder 1849:1851 <> cmd:51
+R1862:1865 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R1859:1861 OTRocq.OtDef <> cmd:51 var
+R1869:1872 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R1866:1868 OTRocq.OtDef <> cmd:51 var
+R1877:1880 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R1873:1876 Corelib.Init.Datatypes <> bool ind
+R1881:1884 Corelib.Init.Datatypes <> list ind
+R1886:1888 OTRocq.OtDef <> cmd:51 var
+binder 1855:1855 <> t:52
+R1902:1905 Corelib.Init.Datatypes <> list ind
+R1907:1909 OTRocq.OtDef <> cmd:51 var
+binder 1892:1894 <> op1:53
+binder 1896:1898 <> op2:54
+R1922:1924 Corelib.Init.Datatypes <> nat ind
+binder 1913:1918 <> nSteps:55
+R1929:1934 Corelib.Init.Datatypes <> option ind
+R1937:1937 Corelib.Init.Datatypes <> ::type_scope:x_'*'_x not
+R1946:1950 Corelib.Init.Datatypes <> ::type_scope:x_'*'_x not
+R1959:1959 Corelib.Init.Datatypes <> ::type_scope:x_'*'_x not
+R1938:1941 Corelib.Init.Datatypes <> list ind
+R1943:1945 OTRocq.OtDef <> cmd:51 var
+R1951:1954 Corelib.Init.Datatypes <> list ind
+R1956:1958 OTRocq.OtDef <> cmd:51 var
+R1971:1976 OTRocq.OtDef <> nSteps:55 var
+R1991:1994 Corelib.Init.Datatypes <> None constr
+R1999:1999 Corelib.Init.Datatypes <> S constr
+R2025:2027 OTRocq.OtDef <> op2:54 var
+R2020:2022 OTRocq.OtDef <> op1:53 var
+R2039:2041 Corelib.Init.Datatypes <> nil constr
+R2051:2053 Corelib.Init.Datatypes <> nil constr
+R2058:2061 Corelib.Init.Datatypes <> Some constr
+R2063:2063 Corelib.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R2067:2068 Corelib.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R2072:2072 Corelib.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R2064:2066 OTRocq.OtDef <> op2:54 var
+R2069:2071 OTRocq.OtDef <> op1:53 var
+R2058:2061 Corelib.Init.Datatypes <> Some constr
+R2063:2063 Corelib.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R2067:2068 Corelib.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R2072:2072 Corelib.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R2064:2066 OTRocq.OtDef <> op2:54 var
+R2069:2071 OTRocq.OtDef <> op1:53 var
+R2079:2082 mathcomp.ssreflect.seq <> ::seq_scope:x_'::'_x not
+R2088:2091 mathcomp.ssreflect.seq <> ::seq_scope:x_'::'_x not
+R2109:2117 OTRocq.OtDef <> transform:56 def
+R2125:2125 OTRocq.OtDef <> t:52 var
+R2131:2135 Corelib.Init.Datatypes <> false constr
+R2119:2119 OTRocq.OtDef <> t:52 var
+R2157:2160 Corelib.Init.Datatypes <> Some constr
+R2162:2162 Corelib.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R2166:2167 Corelib.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R2171:2171 Corelib.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R2189:2197 OTRocq.OtDef <> transform:56 def
+R2202:2202 mathcomp.ssreflect.seq <> ::seq_scope:x_'++'_x not
+R2213:2217 mathcomp.ssreflect.seq <> ::seq_scope:x_'++'_x not
+R2203:2203 OTRocq.OtDef <> t:52 var
+R2209:2212 Corelib.Init.Datatypes <> true constr
+R2199:2199 OTRocq.OtDef <> t:52 var
+R2247:2250 Corelib.Init.Datatypes <> Some constr
+R2252:2252 Corelib.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R2256:2257 Corelib.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R2261:2261 Corelib.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R2266:2269 Corelib.Init.Datatypes <> Some constr
+R2271:2271 Corelib.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R2282:2283 Corelib.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R2287:2287 Corelib.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R2275:2278 mathcomp.ssreflect.seq <> ::seq_scope:x_'++'_x not
+R2303:2306 Corelib.Init.Datatypes <> None constr
+R2323:2326 Corelib.Init.Datatypes <> None constr
+rec 2348:2352 <> OTInv
+proj 2394:2396 <> inv
+proj 2416:2418 <> ip1
+binder 2355:2355 <> X:60
+binder 2357:2359 <> cmd:61
+R2374:2379 OTRocq.OtDef <> OTBase class
+R2381:2381 OTRocq.OtDef <> X:60 var
+R2383:2385 OTRocq.OtDef <> cmd:61 var
+binder 2370:2370 <> M:62
+R2406:2409 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R2403:2405 OTRocq.OtDef <> cmd:61 var
+R2410:2412 OTRocq.OtDef <> cmd:61 var
+binder 2429:2430 <> op:65
+binder 2432:2432 <> m:66
+binder 2434:2435 <> mr:67
+R2459:2462 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R2449:2451 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R2438:2443 OTRocq.OtDef <> interp meth
+R2448:2448 OTRocq.OtDef <> m:66 var
+R2445:2446 OTRocq.OtDef <> op:65 var
+R2452:2455 Corelib.Init.Datatypes <> Some constr
+R2457:2458 OTRocq.OtDef <> mr:67 var
+R2481:2484 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R2491:2491 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R2463:2468 OTRocq.OtDef <> interp meth
+R2479:2480 OTRocq.OtDef <> mr:67 var
+R2471:2473 OTRocq.OtDef <> inv:64 meth
+R2475:2476 OTRocq.OtDef <> op:65 var
+R2485:2488 Corelib.Init.Datatypes <> Some constr
+R2490:2490 OTRocq.OtDef <> m:66 var
+rec 2502:2506 <> OT_C2
+proj 2548:2552 <> it_c2
+binder 2509:2509 <> X:69
+binder 2511:2513 <> cmd:70
+R2528:2533 OTRocq.OtDef <> OTBase class
+R2535:2535 OTRocq.OtDef <> X:69 var
+R2537:2539 OTRocq.OtDef <> cmd:70 var
+binder 2524:2524 <> M:71
+R2578:2580 OTRocq.OtDef <> cmd:70 var
+binder 2564:2566 <> op1:73
+binder 2568:2570 <> op2:74
+binder 2572:2574 <> op3:75
+R2592:2595 Corelib.Init.Datatypes <> bool ind
+binder 2584:2585 <> f1:76
+binder 2587:2588 <> f2:77
+R2599:2605 Corelib.Init.Logic <> ::type_scope:'exists'_x_'..'_x_','_x not
+R2607:2610 Corelib.Init.Logic <> ::type_scope:'exists'_x_'..'_x_','_x not
+binder 2606:2606 <> n:78
+R2623:2631 OTRocq.OtDef <> transform def
+R2633:2635 OTRocq.OtDef <> cmd:70 var
+R2637:2638 OTRocq.OtDef <> it meth
+binder 2615:2617 <> it':79
+R2694:2696 OTRocq.OtDef <> it':79 var
+R2699:2700 OTRocq.OtDef <> it meth
+R2710:2714 Corelib.Init.Datatypes <> false constr
+R2706:2708 OTRocq.OtDef <> op1:73 var
+R2702:2704 OTRocq.OtDef <> op2:74 var
+R2718:2719 OTRocq.OtDef <> it meth
+R2729:2733 Corelib.Init.Datatypes <> false constr
+R2725:2727 OTRocq.OtDef <> op1:73 var
+R2721:2723 OTRocq.OtDef <> op3:75 var
+R2736:2736 OTRocq.OtDef <> n:78 var
+R2651:2653 OTRocq.OtDef <> it':79 var
+R2656:2657 OTRocq.OtDef <> it meth
+R2667:2670 Corelib.Init.Datatypes <> true constr
+R2663:2665 OTRocq.OtDef <> op3:75 var
+R2659:2661 OTRocq.OtDef <> op2:74 var
+R2674:2675 OTRocq.OtDef <> it meth
+R2685:2688 Corelib.Init.Datatypes <> true constr
+R2681:2683 OTRocq.OtDef <> op3:75 var
+R2677:2679 OTRocq.OtDef <> op1:73 var
+R2691:2691 OTRocq.OtDef <> n:78 var
+R2747:2750 Corelib.Init.Datatypes <> Some constr
+R2752:2752 Corelib.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R2754:2755 Corelib.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R2757:2757 Corelib.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R2760:2763 Corelib.Init.Datatypes <> Some constr
+R2765:2765 Corelib.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R2767:2768 Corelib.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R2770:2770 Corelib.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R2776:2778 Corelib.Init.Logic <> ::type_scope:x_'='_x not
+R2795:2799 Corelib.Init.Logic <> False ind
+def 2819:2831 <> computability
+binder 2834:2836 <> cmd:81
+R2855:2858 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R2852:2854 OTRocq.OtDef <> cmd:81 var
+R2862:2865 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R2859:2861 OTRocq.OtDef <> cmd:81 var
+R2870:2873 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R2866:2869 Corelib.Init.Datatypes <> bool ind
+R2874:2877 Corelib.Init.Datatypes <> list ind
+R2879:2881 OTRocq.OtDef <> cmd:81 var
+binder 2847:2848 <> it:82
+R2898:2901 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R2891:2893 mathcomp.ssreflect.seq <> seq abbrev
+R2895:2897 OTRocq.OtDef <> cmd:81 var
+R2902:2904 Corelib.Init.Datatypes <> nat ind
+binder 2886:2887 <> sz:83
+R2920:2923 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R2913:2915 mathcomp.ssreflect.seq <> seq abbrev
+R2917:2919 OTRocq.OtDef <> cmd:81 var
+R2924:2926 Corelib.Init.Datatypes <> nat ind
+binder 2908:2909 <> si:84
+R2940:2942 OTRocq.OtDef <> cmd:81 var
+binder 2930:2932 <> op1:85
+binder 2934:2936 <> op2:86
+binder 2955:2957 <> srv:87
+R2975:2976 OTRocq.OtDef <> it:82 var
+R2987:2990 Corelib.Init.Datatypes <> negb def
+R2992:2994 OTRocq.OtDef <> srv:87 var
+R2982:2984 OTRocq.OtDef <> op2:86 var
+R2978:2980 OTRocq.OtDef <> op1:85 var
+binder 2967:2970 <> op1':88
+R3014:3015 OTRocq.OtDef <> it:82 var
+R3025:3027 OTRocq.OtDef <> srv:87 var
+R3021:3023 OTRocq.OtDef <> op1:85 var
+R3017:3019 OTRocq.OtDef <> op2:86 var
+binder 3006:3009 <> op2':89
+R3084:3092 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R3036:3036 mathcomp.ssreflect.ssrnat <> ::nat_scope:x_'<='_x not
+R3054:3058 mathcomp.ssreflect.ssrnat <> ::nat_scope:x_'<='_x not
+R3044:3046 mathcomp.ssreflect.ssrnat <> ::nat_scope:x_'+'_x not
+R3037:3038 OTRocq.OtDef <> sz:83 var
+R3040:3043 OTRocq.OtDef <> op1':88 var
+R3047:3048 OTRocq.OtDef <> sz:83 var
+R3050:3053 OTRocq.OtDef <> op2':89 var
+R3070:3072 mathcomp.ssreflect.ssrnat <> ::nat_scope:x_'+'_x not
+R3059:3060 OTRocq.OtDef <> sz:83 var
+R3062:3065 mathcomp.ssreflect.seq <> ::seq_scope:'['_'::'_x_']' not
+R3069:3069 mathcomp.ssreflect.seq <> ::seq_scope:'['_'::'_x_']' not
+R3066:3068 OTRocq.OtDef <> op1:85 var
+R3073:3074 OTRocq.OtDef <> sz:83 var
+R3076:3079 mathcomp.ssreflect.seq <> ::seq_scope:'['_'::'_x_']' not
+R3083:3083 mathcomp.ssreflect.seq <> ::seq_scope:'['_'::'_x_']' not
+R3080:3082 OTRocq.OtDef <> op2:86 var
+R3093:3093 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R3140:3149 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R3255:3255 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R3111:3114 mathcomp.ssreflect.ssrnat <> ::nat_scope:x_'<='_x not
+R3101:3103 mathcomp.ssreflect.ssrnat <> ::nat_scope:x_'+'_x not
+R3094:3095 OTRocq.OtDef <> si:84 var
+R3097:3100 OTRocq.OtDef <> op1':88 var
+R3104:3105 OTRocq.OtDef <> si:84 var
+R3107:3110 OTRocq.OtDef <> op2':89 var
+R3126:3128 mathcomp.ssreflect.ssrnat <> ::nat_scope:x_'+'_x not
+R3115:3116 OTRocq.OtDef <> si:84 var
+R3118:3121 mathcomp.ssreflect.seq <> ::seq_scope:'['_'::'_x_']' not
+R3125:3125 mathcomp.ssreflect.seq <> ::seq_scope:'['_'::'_x_']' not
+R3122:3124 OTRocq.OtDef <> op1:85 var
+R3129:3130 OTRocq.OtDef <> si:84 var
+R3132:3135 mathcomp.ssreflect.seq <> ::seq_scope:'['_'::'_x_']' not
+R3139:3139 mathcomp.ssreflect.seq <> ::seq_scope:'['_'::'_x_']' not
+R3136:3138 OTRocq.OtDef <> op2:86 var
+R3150:3150 Corelib.Init.Logic <> ::type_scope:x_'\/'_x not
+R3199:3208 Corelib.Init.Logic <> ::type_scope:x_'\/'_x not
+R3254:3254 Corelib.Init.Logic <> ::type_scope:x_'\/'_x not
+R3173:3176 Corelib.Init.Logic <> ::type_scope:x_'/\'_x not
+R3158:3161 mathcomp.ssreflect.ssrnat <> ::nat_scope:x_'<='_x not
+R3151:3152 OTRocq.OtDef <> sz:83 var
+R3154:3157 OTRocq.OtDef <> op1':88 var
+R3162:3163 OTRocq.OtDef <> sz:83 var
+R3165:3168 mathcomp.ssreflect.seq <> ::seq_scope:'['_'::'_x_']' not
+R3172:3172 mathcomp.ssreflect.seq <> ::seq_scope:'['_'::'_x_']' not
+R3169:3171 OTRocq.OtDef <> op1:85 var
+R3184:3187 mathcomp.ssreflect.ssrnat <> ::nat_scope:x_'<='_x not
+R3177:3178 OTRocq.OtDef <> sz:83 var
+R3180:3183 OTRocq.OtDef <> op2':89 var
+R3188:3189 OTRocq.OtDef <> sz:83 var
+R3191:3194 mathcomp.ssreflect.seq <> ::seq_scope:'['_'::'_x_']' not
+R3198:3198 mathcomp.ssreflect.seq <> ::seq_scope:'['_'::'_x_']' not
+R3195:3197 OTRocq.OtDef <> op2:86 var
+R3226:3228 mathcomp.ssreflect.ssrnat <> ::nat_scope:x_'<'_x not
+R3216:3218 mathcomp.ssreflect.ssrnat <> ::nat_scope:x_'+'_x not
+R3209:3210 OTRocq.OtDef <> si:84 var
+R3212:3215 OTRocq.OtDef <> op1':88 var
+R3219:3220 OTRocq.OtDef <> si:84 var
+R3222:3225 OTRocq.OtDef <> op2':89 var
+R3240:3242 mathcomp.ssreflect.ssrnat <> ::nat_scope:x_'+'_x not
+R3229:3230 OTRocq.OtDef <> si:84 var
+R3232:3235 mathcomp.ssreflect.seq <> ::seq_scope:'['_'::'_x_']' not
+R3239:3239 mathcomp.ssreflect.seq <> ::seq_scope:'['_'::'_x_']' not
+R3236:3238 OTRocq.OtDef <> op1:85 var
+R3243:3244 OTRocq.OtDef <> si:84 var
+R3246:3249 mathcomp.ssreflect.seq <> ::seq_scope:'['_'::'_x_']' not
+R3253:3253 mathcomp.ssreflect.seq <> ::seq_scope:'['_'::'_x_']' not
+R3250:3252 OTRocq.OtDef <> op2:86 var
+rec 3265:3270 <> OTComp
+proj 3306:3310 <> cmdsz
+proj 3328:3332 <> cmdsi
+proj 3350:3351 <> sz
+proj 3385:3386 <> si
+proj 3420:3427 <> sz_nondg
+proj 3457:3465 <> comp_corr
+binder 3273:3273 <> X:90
+binder 3275:3277 <> cmd:91
+R3285:3290 OTRocq.OtDef <> OTBase class
+R3292:3292 OTRocq.OtDef <> X:90 var
+R3294:3296 OTRocq.OtDef <> cmd:91 var
+binder 3281:3281 <> M:92
+R3317:3320 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R3314:3316 OTRocq.OtDef <> cmd:91 var
+R3321:3323 Corelib.Init.Datatypes <> nat ind
+R3339:3342 Corelib.Init.Logic <> ::type_scope:x_'->'_x not
+R3336:3338 OTRocq.OtDef <> cmd:91 var
+R3343:3345 Corelib.Init.Datatypes <> nat ind
+R3368:3371 mathcomp.ssreflect.ssrfun <> ::function_scope:x_'\o'_x not
+R3356:3360 mathcomp.ssreflect.seq <> foldl def
+R3362:3365 mathcomp.ssreflect.ssrnat <> addn def
+R3372:3374 mathcomp.ssreflect.seq <> map def
+R3376:3380 OTRocq.OtDef <> cmdsz:94 meth
+R3403:3406 mathcomp.ssreflect.ssrfun <> ::function_scope:x_'\o'_x not
+R3391:3395 mathcomp.ssreflect.seq <> foldl def
+R3397:3400 mathcomp.ssreflect.ssrnat <> addn def
+R3407:3409 mathcomp.ssreflect.seq <> map def
+R3411:3415 OTRocq.OtDef <> cmdsi:95 meth
+binder 3438:3438 <> x:98
+R3443:3445 mathcomp.ssreflect.ssrnat <> ::nat_scope:x_'<'_x not
+R3446:3450 OTRocq.OtDef <> cmdsz:94 meth
+R3452:3452 OTRocq.OtDef <> x:98 var
+R3486:3488 OTRocq.OtDef <> cmd:91 var
+binder 3476:3478 <> op1:100
+binder 3480:3482 <> op2:101
+R3492:3504 OTRocq.OtDef <> computability def
+R3519:3521 OTRocq.OtDef <> op2:101 var
+R3515:3517 OTRocq.OtDef <> op1:100 var
+R3512:3513 OTRocq.OtDef <> si:97 meth
+R3509:3510 OTRocq.OtDef <> sz:96 meth
+R3506:3507 OTRocq.OtDef <> it meth

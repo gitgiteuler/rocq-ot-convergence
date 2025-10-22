@@ -1,0 +1,7 @@
+DIGEST ed95d38460a06a1d64d95ddd9d85ab27
+Foperation_transformation_property
+R15:19 Stdlib.Arith.Arith <> <> lib
+R37:40 Stdlib.Bool.Bool <> <> lib
+R58:60 Corelib.Init.Nat <> <> lib
+R78:81 Stdlib.Lists.List <> <> lib
+R91:103 Stdlib.Lists.List ListNotations <> mod

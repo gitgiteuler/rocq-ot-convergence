@@ -1,0 +1,15 @@
+-R . CoqProject
+-R ot-rocq OTRocq
+
+operation_transformation_property.v
+ot-rocq/ArithAux.v
+ot-rocq/Commons.v
+ot-rocq/Comp.v
+ot-rocq/Fs.v
+ot-rocq/ListTools.v
+ot-rocq/OtDef.v
+ot-rocq/RichText.v
+ot-rocq/RichTextTests.v
+ot-rocq/SortedTree.v
+ot-rocq/Ssromega.v
+ot-rocq/TreeOt.v
