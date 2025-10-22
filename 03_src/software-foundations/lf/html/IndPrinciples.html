@@ -1,0 +1,1215 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<link href="common/css/sf.css" rel="stylesheet" type="text/css"/>
+<title>論理の基礎</title>
+</head>
+<link href="common/jquery-ui/jquery-ui.css" rel="stylesheet">
+<script src="common/jquery-ui/external/jquery/jquery.js"></script>
+<script src="common/jquery-ui/jquery-ui.js"></script>
+<script src="common/toggleproofs.js"></script>
+<link href="common/css/lf.css" rel="stylesheet" type="text/css"/>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+<a href='../index.html'>
+<img src='common/media/image/sf_logo_sm.png'></a>
+</br><a href='index.html'><span class='booktitleinheader'>第 1 巻: 論理の基礎</span></a><br></br>
+<ul id='menu'>
+   <a href='toc.html'><li class='section_name'>目次</li></a>
+   <a href='coqindex.html'><li class='section_name'>索引</li></a>
+   <a href='deps.html'><li class='section_name'>全体図</li></a>
+</ul>
+</div>
+
+<div id="main">
+<h1 class="libtitle">IndPrinciples: Induction Principles</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+
+<div class="paragraph"> </div>
+
+ With the Curry-Howard correspondence and its realization in Coq in
+    mind, we can now take a deeper look at induction principles. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Set</span> <span class="id" title="var">Warnings</span> "-notation-overridden,-parsing".<br/>
+<span class="id" title="var">From</span> <span class="id" title="var">LF</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Export</span> <a class="idref" href="ProofObjects.html#"><span class="id" title="library">ProofObjects</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab282"></a><h1 class="section">Basics</h1>
+
+<div class="paragraph"> </div>
+
+ Every time we declare a new <span class="inlinecode"><span class="id" title="keyword">Inductive</span></span> datatype, Coq
+    automatically generates an <i>induction principle</i> for this type.
+    This induction principle is a theorem like any other: If <span class="inlinecode"><a class="idref" href="ImpParser.html#t"><span class="id" title="variable">t</span></a></span> is
+    defined inductively, the corresponding induction principle is
+    called <span class="inlinecode"><span class="id" title="var">t_ind</span></span>.  Here is the one for natural numbers: 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Check</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Datatypes.html#nat_ind"><span class="id" title="definition">nat_ind</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+The <span class="inlinecode"><span class="id" title="tactic">induction</span></span> tactic is a straightforward wrapper that, at its
+    core, simply performs <span class="inlinecode"><span class="id" title="tactic">apply</span></span> <span class="inlinecode"><span class="id" title="var">t_ind</span></span>.  To see this more clearly,
+    let's experiment with directly using <span class="inlinecode"><span class="id" title="tactic">apply</span></span> <span class="inlinecode"><a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Datatypes.html#nat_ind"><span class="id" title="definition">nat_ind</span></a></span>, instead of
+    the <span class="inlinecode"><span class="id" title="tactic">induction</span></span> tactic, to carry out some proofs.  Here, for
+    example, is an alternate proof of a theorem that we saw in the
+    <span class="inlinecode"><span class="id" title="library">Basics</span></span> chapter. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Theorem</span> <a name="mult_0_r'"><span class="id" title="lemma">mult_0_r'</span></a> : <span class="id" title="keyword">forall</span> <span class="id" title="var">n</span>:<a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Datatypes.html#nat"><span class="id" title="inductive">nat</span></a>,<br/>
+&nbsp;&nbsp;<a class="idref" href="IndPrinciples.html#n"><span class="id" title="variable">n</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Peano.html#697e4695610f677ae98a52af81f779d2"><span class="id" title="notation">*</span></a> 0 <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#1c39bf18749e5cc609e83c0a0ba5a372"><span class="id" title="notation">=</span></a> 0.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Datatypes.html#nat_ind"><span class="id" title="definition">nat_ind</span></a>.<br/>
+&nbsp;&nbsp;-  <span class="id" title="tactic">reflexivity</span>.<br/>
+&nbsp;&nbsp;-  <span class="id" title="tactic">simpl</span>. <span class="id" title="tactic">intros</span> <span class="id" title="var">n'</span> <span class="id" title="var">IHn'</span>. <span class="id" title="tactic">rewrite</span> -&gt; <span class="id" title="var">IHn'</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">reflexivity</span>. <span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+This proof is basically the same as the earlier one, but a
+    few minor differences are worth noting.
+
+<div class="paragraph"> </div>
+
+    First, in the induction step of the proof (the <span class="inlinecode">&quot;<a class="idref" href="Basics.html#NatPlayground.S"><span class="id" title="constructor">S</span></a>&quot;</span> case), we
+    have to do a little bookkeeping manually (the <span class="inlinecode"><span class="id" title="tactic">intros</span></span>) that
+    <span class="inlinecode"><span class="id" title="tactic">induction</span></span> does automatically.
+
+<div class="paragraph"> </div>
+
+    Second, we do not introduce <span class="inlinecode"><a class="idref" href="Basics.html#n"><span class="id" title="variable">n</span></a></span> into the context before applying
+    <span class="inlinecode"><a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Datatypes.html#nat_ind"><span class="id" title="definition">nat_ind</span></a></span> -- the conclusion of <span class="inlinecode"><a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Datatypes.html#nat_ind"><span class="id" title="definition">nat_ind</span></a></span> is a quantified formula,
+    and <span class="inlinecode"><span class="id" title="tactic">apply</span></span> needs this conclusion to exactly match the shape of
+    the goal state, including the quantifier.  By contrast, the
+    <span class="inlinecode"><span class="id" title="tactic">induction</span></span> tactic works either with a variable in the context or
+    a quantified variable in the goal.
+
+<div class="paragraph"> </div>
+
+    These conveniences make <span class="inlinecode"><span class="id" title="tactic">induction</span></span> nicer to use in practice than
+    applying induction principles like <span class="inlinecode"><a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Datatypes.html#nat_ind"><span class="id" title="definition">nat_ind</span></a></span> directly.  But it is
+    important to realize that, modulo these bits of bookkeeping,
+    applying <span class="inlinecode"><a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Datatypes.html#nat_ind"><span class="id" title="definition">nat_ind</span></a></span> is what we are really doing. 
+<div class="paragraph"> </div>
+
+<a name="lab283"></a><h4 class="section">Exercise: 2 stars, standard, optional (plus_one_r')</h4>
+
+
+<div class="paragraph"> </div>
+
+    Complete this proof without using the <span class="inlinecode"><span class="id" title="tactic">induction</span></span> tactic. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Theorem</span> <a name="plus_one_r'"><span class="id" title="lemma">plus_one_r'</span></a> : <span class="id" title="keyword">forall</span> <span class="id" title="var">n</span>:<a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Datatypes.html#nat"><span class="id" title="inductive">nat</span></a>,<br/>
+&nbsp;&nbsp;<a class="idref" href="IndPrinciples.html#n"><span class="id" title="variable">n</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Peano.html#b3eea360671e1b32b18a26e15b3aace3"><span class="id" title="notation">+</span></a> 1 <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#1c39bf18749e5cc609e83c0a0ba5a372"><span class="id" title="notation">=</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Datatypes.html#S"><span class="id" title="constructor">S</span></a> <a class="idref" href="IndPrinciples.html#n"><span class="id" title="variable">n</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+ <span class="id" title="var">Admitted</span>.<br/>
+</div>
+
+<div class="doc">
+<font size=-2>&#9744;</font> 
+<div class="paragraph"> </div>
+
+ Coq generates induction principles for every datatype defined with
+    <span class="inlinecode"><span class="id" title="keyword">Inductive</span></span>, including those that aren't recursive.  Although of
+    course we don't need induction to prove properties of
+    non-recursive datatypes, the idea of an induction principle still
+    makes sense for them: it gives a way to prove that a property
+    holds for all values of the type.
+
+<div class="paragraph"> </div>
+
+    These generated principles follow a similar pattern. If we define
+    a type <span class="inlinecode"><a class="idref" href="ImpParser.html#t"><span class="id" title="variable">t</span></a></span> with constructors <span class="inlinecode"><a class="idref" href="IndProp.html#R.c1"><span class="id" title="constructor">c1</span></a></span> ... <span class="inlinecode"><span class="id" title="var">cn</span></span>, Coq generates a
+    theorem with this shape:
+
+<div class="paragraph"> </div>
+
+    t_ind : forall P : t -&gt; Prop,
+              ... case for c1 ... -&gt;
+              ... case for c2 ... -&gt; ...
+              ... case for cn ... -&gt;
+              forall n : t, P n
+
+<div class="paragraph"> </div>
+
+    The specific shape of each case depends on the arguments to the
+    corresponding constructor.  Before trying to write down a general
+    rule, let's look at some more examples. First, an example where
+    the constructors take no arguments: 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Inductive</span> <a name="yesno"><span class="id" title="inductive">yesno</span></a> : <span class="id" title="keyword">Type</span> :=<br/>
+&nbsp;&nbsp;| <a name="yes"><span class="id" title="constructor">yes</span></a><br/>
+&nbsp;&nbsp;| <a name="no"><span class="id" title="constructor">no</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Check</span> <a class="idref" href="IndPrinciples.html#yesno_ind"><span class="id" title="definition">yesno_ind</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab284"></a><h4 class="section">Exercise: 1 star, standard, optional (rgb)</h4>
+
+
+<div class="paragraph"> </div>
+
+    Write out the induction principle that Coq will generate for the
+    following datatype.  Write down your answer on paper or type it
+    into a comment, and then compare it with what Coq prints. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Inductive</span> <a name="rgb"><span class="id" title="inductive">rgb</span></a> : <span class="id" title="keyword">Type</span> :=<br/>
+&nbsp;&nbsp;| <a name="red"><span class="id" title="constructor">red</span></a><br/>
+&nbsp;&nbsp;| <a name="green"><span class="id" title="constructor">green</span></a><br/>
+&nbsp;&nbsp;| <a name="blue"><span class="id" title="constructor">blue</span></a>.<br/>
+<span class="id" title="keyword">Check</span> <a class="idref" href="IndPrinciples.html#rgb_ind"><span class="id" title="definition">rgb_ind</span></a>.<br/>
+</div>
+
+<div class="doc">
+<font size=-2>&#9744;</font> 
+<div class="paragraph"> </div>
+
+ Here's another example, this time with one of the constructors
+    taking some arguments. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Inductive</span> <a name="natlist"><span class="id" title="inductive">natlist</span></a> : <span class="id" title="keyword">Type</span> :=<br/>
+&nbsp;&nbsp;| <a name="nnil"><span class="id" title="constructor">nnil</span></a><br/>
+&nbsp;&nbsp;| <a name="ncons"><span class="id" title="constructor">ncons</span></a> (<span class="id" title="var">n</span> : <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Datatypes.html#nat"><span class="id" title="inductive">nat</span></a>) (<span class="id" title="var">l</span> : <a class="idref" href="IndPrinciples.html#natlist"><span class="id" title="inductive">natlist</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">Check</span> <a class="idref" href="IndPrinciples.html#natlist_ind"><span class="id" title="definition">natlist_ind</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab285"></a><h4 class="section">Exercise: 1 star, standard, optional (natlist1)</h4>
+
+
+<div class="paragraph"> </div>
+
+    Suppose we had written the above definition a little
+   differently: 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Inductive</span> <a name="natlist1"><span class="id" title="inductive">natlist1</span></a> : <span class="id" title="keyword">Type</span> :=<br/>
+&nbsp;&nbsp;| <a name="nnil1"><span class="id" title="constructor">nnil1</span></a><br/>
+&nbsp;&nbsp;| <a name="nsnoc1"><span class="id" title="constructor">nsnoc1</span></a> (<span class="id" title="var">l</span> : <a class="idref" href="IndPrinciples.html#natlist1"><span class="id" title="inductive">natlist1</span></a>) (<span class="id" title="var">n</span> : <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Datatypes.html#nat"><span class="id" title="inductive">nat</span></a>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Now what will the induction principle look like? 
+
+<div class="paragraph"> </div>
+
+    <font size=-2>&#9744;</font> 
+<div class="paragraph"> </div>
+
+ From these examples, we can extract this general rule:
+
+<div class="paragraph"> </div>
+
+<ul class="doclist">
+<li> The type declaration gives several constructors; each
+      corresponds to one clause of the induction principle.
+
+</li>
+<li> Each constructor <span class="inlinecode"><a class="idref" href="IndProp.html#c"><span class="id" title="definition">c</span></a></span> takes argument types <span class="inlinecode"><a class="idref" href="Logic.html#a1"><span class="id" title="variable">a1</span></a></span> ... <span class="inlinecode"><span class="id" title="var">an</span></span>.
+
+</li>
+<li> Each <span class="inlinecode"><span class="id" title="var">ai</span></span> can be either <span class="inlinecode"><a class="idref" href="ImpParser.html#t"><span class="id" title="variable">t</span></a></span> (the datatype we are defining) or
+      some other type <span class="inlinecode"><a class="idref" href="Lists.html#s"><span class="id" title="variable">s</span></a></span>.
+
+</li>
+<li> The corresponding case of the induction principle says:
+
+<div class="paragraph"> </div>
+
+<ul class="doclist">
+<li> "For all values <span class="inlinecode"><a class="idref" href="Lists.html#x1"><span class="id" title="variable">x1</span></a></span>...<span class="inlinecode"><span class="id" title="var">xn</span></span> of types <span class="inlinecode"><a class="idref" href="Logic.html#a1"><span class="id" title="variable">a1</span></a></span>...<span class="inlinecode"><span class="id" title="var">an</span></span>, if <span class="inlinecode"><a class="idref" href="Logic.html#P"><span class="id" title="variable">P</span></a></span>
+          holds for each of the inductive arguments (each <span class="inlinecode"><span class="id" title="var">xi</span></span> of type
+          <span class="inlinecode"><a class="idref" href="ImpParser.html#t"><span class="id" title="variable">t</span></a></span>), then <span class="inlinecode"><a class="idref" href="Logic.html#P"><span class="id" title="variable">P</span></a></span> holds for <span class="inlinecode"><a class="idref" href="IndProp.html#c"><span class="id" title="definition">c</span></a></span> <span class="inlinecode"><a class="idref" href="Lists.html#x1"><span class="id" title="variable">x1</span></a></span> <span class="inlinecode">...</span> <span class="inlinecode"><span class="id" title="var">xn</span></span>".
+
+</li>
+</ul>
+
+</li>
+</ul>
+
+<div class="paragraph"> </div>
+
+<a name="lab286"></a><h4 class="section">Exercise: 1 star, standard, optional (byntree_ind)</h4>
+
+
+<div class="paragraph"> </div>
+
+    Write out the induction principle that Coq will generate for the
+    following datatype.  (Again, write down your answer on paper or
+    type it into a comment, and then compare it with what Coq
+    prints.) 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Inductive</span> <a name="byntree"><span class="id" title="inductive">byntree</span></a> : <span class="id" title="keyword">Type</span> :=<br/>
+&nbsp;| <a name="bempty"><span class="id" title="constructor">bempty</span></a><br/>
+&nbsp;| <a name="bleaf"><span class="id" title="constructor">bleaf</span></a> (<span class="id" title="var">yn</span> : <a class="idref" href="IndPrinciples.html#yesno"><span class="id" title="inductive">yesno</span></a>)<br/>
+&nbsp;| <a name="nbranch"><span class="id" title="constructor">nbranch</span></a> (<span class="id" title="var">yn</span> : <a class="idref" href="IndPrinciples.html#yesno"><span class="id" title="inductive">yesno</span></a>) (<span class="id" title="var">t1</span> <span class="id" title="var">t2</span> : <a class="idref" href="IndPrinciples.html#byntree"><span class="id" title="inductive">byntree</span></a>).<br/>
+</div>
+
+<div class="doc">
+<font size=-2>&#9744;</font> 
+<div class="paragraph"> </div>
+
+<a name="lab287"></a><h4 class="section">Exercise: 1 star, standard, optional (ex_set)</h4>
+
+
+<div class="paragraph"> </div>
+
+    Here is an induction principle for an inductively defined
+    set.
+
+<div class="paragraph"> </div>
+
+      ExSet_ind :
+         forall P : ExSet -&gt; Prop,
+             (forall b : bool, P (con1 b)) -&gt;
+             (forall (n : nat) (e : ExSet), P e -&gt; P (con2 n e)) -&gt;
+             forall e : ExSet, P e
+
+<div class="paragraph"> </div>
+
+    Give an <span class="inlinecode"><span class="id" title="keyword">Inductive</span></span> definition of <span class="inlinecode"><a class="idref" href="IndPrinciples.html#ExSet"><span class="id" title="inductive">ExSet</span></a></span>: 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Inductive</span> <a name="ExSet"><span class="id" title="inductive">ExSet</span></a> : <span class="id" title="keyword">Type</span> :=<br/>
+&nbsp;&nbsp;<br/>
+.<br/>
+</div>
+
+<div class="doc">
+<font size=-2>&#9744;</font> 
+</div>
+<div class="code">
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab288"></a><h1 class="section">Polymorphism</h1>
+
+<div class="paragraph"> </div>
+
+ Next, what about polymorphic datatypes?
+
+<div class="paragraph"> </div>
+
+    The inductive definition of polymorphic lists
+
+<div class="paragraph"> </div>
+
+      Inductive list (X:Type) : Type :=
+        | nil : list X
+        | cons : X -&gt; list X -&gt; list X.
+
+<div class="paragraph"> </div>
+
+    is very similar to that of <span class="inlinecode"><a class="idref" href="IndPrinciples.html#natlist"><span class="id" title="inductive">natlist</span></a></span>.  The main difference is
+    that, here, the whole definition is <i>parameterized</i> on a set <span class="inlinecode"><a class="idref" href="Imp.html#X"><span class="id" title="definition">X</span></a></span>:
+    that is, we are defining a <i>family</i> of inductive types <span class="inlinecode"><a class="idref" href="Poly.html#list"><span class="id" title="inductive">list</span></a></span> <span class="inlinecode"><a class="idref" href="Imp.html#X"><span class="id" title="definition">X</span></a></span>,
+    one for each <span class="inlinecode"><a class="idref" href="Imp.html#X"><span class="id" title="definition">X</span></a></span>.  (Note that, wherever <span class="inlinecode"><a class="idref" href="Poly.html#list"><span class="id" title="inductive">list</span></a></span> appears in the body
+    of the declaration, it is always applied to the parameter <span class="inlinecode"><a class="idref" href="Imp.html#X"><span class="id" title="definition">X</span></a></span>.)
+    The induction principle is likewise parameterized on <span class="inlinecode"><a class="idref" href="Imp.html#X"><span class="id" title="definition">X</span></a></span>:
+
+<div class="paragraph"> </div>
+
+      list_ind :
+        forall (X : Type) (P : list X -&gt; Prop),
+           P <font size=-2>&#9744;</font> -&gt;
+           (forall (x : X) (l : list X), P l -&gt; P (x :: l)) -&gt;
+           forall l : list X, P l
+
+<div class="paragraph"> </div>
+
+    Note that the <i>whole</i> induction principle is parameterized on
+    <span class="inlinecode"><a class="idref" href="Imp.html#X"><span class="id" title="definition">X</span></a></span>.  That is, <span class="inlinecode"><span class="id" title="var">list_ind</span></span> can be thought of as a polymorphic
+    function that, when applied to a type <span class="inlinecode"><a class="idref" href="Imp.html#X"><span class="id" title="definition">X</span></a></span>, gives us back an
+    induction principle specialized to the type <span class="inlinecode"><a class="idref" href="Poly.html#list"><span class="id" title="inductive">list</span></a></span> <span class="inlinecode"><a class="idref" href="Imp.html#X"><span class="id" title="definition">X</span></a></span>. 
+<div class="paragraph"> </div>
+
+<a name="lab289"></a><h4 class="section">Exercise: 1 star, standard, optional (tree)</h4>
+
+
+<div class="paragraph"> </div>
+
+    Write out the induction principle that Coq will generate for
+   the following datatype.  Compare your answer with what Coq
+   prints. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Inductive</span> <a name="tree"><span class="id" title="inductive">tree</span></a> (<span class="id" title="var">X</span>:<span class="id" title="keyword">Type</span>) : <span class="id" title="keyword">Type</span> :=<br/>
+&nbsp;&nbsp;| <a name="leaf"><span class="id" title="constructor">leaf</span></a> (<span class="id" title="var">x</span> : <a class="idref" href="IndPrinciples.html#X"><span class="id" title="variable">X</span></a>)<br/>
+&nbsp;&nbsp;| <a name="node"><span class="id" title="constructor">node</span></a> (<span class="id" title="var">t1</span> <span class="id" title="var">t2</span> : <a class="idref" href="IndPrinciples.html#tree"><span class="id" title="inductive">tree</span></a> <a class="idref" href="IndPrinciples.html#X"><span class="id" title="variable">X</span></a>).<br/>
+<span class="id" title="keyword">Check</span> <a class="idref" href="IndPrinciples.html#tree_ind"><span class="id" title="definition">tree_ind</span></a>.<br/>
+</div>
+
+<div class="doc">
+<font size=-2>&#9744;</font> 
+<div class="paragraph"> </div>
+
+<a name="lab290"></a><h4 class="section">Exercise: 1 star, standard, optional (mytype)</h4>
+
+
+<div class="paragraph"> </div>
+
+    Find an inductive definition that gives rise to the
+    following induction principle:
+
+<div class="paragraph"> </div>
+
+      mytype_ind :
+        forall (X : Type) (P : mytype X -&gt; Prop),
+            (forall x : X, P (constr1 X x)) -&gt;
+            (forall n : nat, P (constr2 X n)) -&gt;
+            (forall m : mytype X, P m -&gt;
+               forall n : nat, P (constr3 X m n)) -&gt;
+            forall m : mytype X, P m
+ <font size=-2>&#9744;</font> 
+<div class="paragraph"> </div>
+
+<a name="lab291"></a><h4 class="section">Exercise: 1 star, standard, optional (foo)</h4>
+
+
+<div class="paragraph"> </div>
+
+    Find an inductive definition that gives rise to the
+    following induction principle:
+
+<div class="paragraph"> </div>
+
+      foo_ind :
+        forall (X Y : Type) (P : foo X Y -&gt; Prop),
+             (forall x : X, P (bar X Y x)) -&gt;
+             (forall y : Y, P (baz X Y y)) -&gt;
+             (forall f1 : nat -&gt; foo X Y,
+               (forall n : nat, P (f1 n)) -&gt; P (quux X Y f1)) -&gt;
+             forall f2 : foo X Y, P f2
+ <font size=-2>&#9744;</font> 
+<div class="paragraph"> </div>
+
+<a name="lab292"></a><h4 class="section">Exercise: 1 star, standard, optional (foo')</h4>
+
+
+<div class="paragraph"> </div>
+
+    Consider the following inductive definition: 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Inductive</span> <a name="foo'"><span class="id" title="inductive">foo'</span></a> (<span class="id" title="var">X</span>:<span class="id" title="keyword">Type</span>) : <span class="id" title="keyword">Type</span> :=<br/>
+&nbsp;&nbsp;| <a name="C1"><span class="id" title="constructor">C1</span></a> (<span class="id" title="var">l</span> : <a class="idref" href="Poly.html#list"><span class="id" title="inductive">list</span></a> <a class="idref" href="IndPrinciples.html#X"><span class="id" title="variable">X</span></a>) (<span class="id" title="var">f</span> : <a class="idref" href="IndPrinciples.html#foo'"><span class="id" title="inductive">foo'</span></a> <a class="idref" href="IndPrinciples.html#X"><span class="id" title="variable">X</span></a>)<br/>
+&nbsp;&nbsp;| <a name="C2"><span class="id" title="constructor">C2</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+What induction principle will Coq generate for <span class="inlinecode"><a class="idref" href="Imp.html#AExp.foo'"><span class="id" title="lemma">foo'</span></a></span>?  Fill
+   in the blanks, then check your answer with Coq.)
+
+<div class="paragraph"> </div>
+
+     foo'_ind :
+        forall (X : Type) (P : foo' X -&gt; Prop),
+              (forall (l : list X) (f : foo' X),
+                    <i>_____________________</i> -&gt;
+                    <i>_____________________</i>   ) -&gt;
+             <i>_________________________________________</i> -&gt;
+             forall f : foo' X, <i>______________________</i>
+
+<div class="paragraph"> </div>
+
+ <font size=-2>&#9744;</font> 
+</div>
+<div class="code">
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab293"></a><h1 class="section">Induction Hypotheses</h1>
+
+<div class="paragraph"> </div>
+
+ Where does the phrase "induction hypothesis" fit into this story?
+
+<div class="paragraph"> </div>
+
+    The induction principle for numbers
+
+<div class="paragraph"> </div>
+
+       forall P : nat -&gt; Prop,
+            P 0  -&gt;
+            (forall n : nat, P n -&gt; P (S n))  -&gt;
+            forall n : nat, P n
+
+<div class="paragraph"> </div>
+
+   is a generic statement that holds for all propositions
+   <span class="inlinecode"><a class="idref" href="Logic.html#P"><span class="id" title="variable">P</span></a></span> (or rather, strictly speaking, for all families of
+   propositions <span class="inlinecode"><a class="idref" href="Logic.html#P"><span class="id" title="variable">P</span></a></span> indexed by a number <span class="inlinecode"><a class="idref" href="Basics.html#n"><span class="id" title="variable">n</span></a></span>).  Each time we
+   use this principle, we are choosing <span class="inlinecode"><a class="idref" href="Logic.html#P"><span class="id" title="variable">P</span></a></span> to be a particular
+   expression of type <span class="inlinecode"><a class="idref" href="Basics.html#NatPlayground.nat"><span class="id" title="inductive">nat</span></a>-&gt;<span class="id" title="keyword">Prop</span></span>.
+
+<div class="paragraph"> </div>
+
+   We can make proofs by induction more explicit by giving
+   this expression a name.  For example, instead of stating
+   the theorem <span class="inlinecode"><a class="idref" href="Induction.html#mult_0_r"><span class="id" title="lemma">mult_0_r</span></a></span> as "<span class="inlinecode"><span class="id" title="keyword">forall</span></span> <span class="inlinecode"><a class="idref" href="Basics.html#n"><span class="id" title="variable">n</span></a>,</span> <span class="inlinecode"><a class="idref" href="Basics.html#n"><span class="id" title="variable">n</span></a></span> <span class="inlinecode">*</span> <span class="inlinecode">0</span> <span class="inlinecode">=</span> <span class="inlinecode">0</span>," we can
+   write it as "<span class="inlinecode"><span class="id" title="keyword">forall</span></span> <span class="inlinecode"><a class="idref" href="Basics.html#n"><span class="id" title="variable">n</span></a>,</span> <span class="inlinecode"><a class="idref" href="IndPrinciples.html#P_m0r"><span class="id" title="definition">P_m0r</span></a></span> <span class="inlinecode"><a class="idref" href="Basics.html#n"><span class="id" title="variable">n</span></a></span>", where <span class="inlinecode"><a class="idref" href="IndPrinciples.html#P_m0r"><span class="id" title="definition">P_m0r</span></a></span> is defined
+   as... 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="P_m0r"><span class="id" title="definition">P_m0r</span></a> (<span class="id" title="var">n</span>:<a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Datatypes.html#nat"><span class="id" title="inductive">nat</span></a>) : <span class="id" title="keyword">Prop</span> :=<br/>
+&nbsp;&nbsp;<a class="idref" href="IndPrinciples.html#n"><span class="id" title="variable">n</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Peano.html#697e4695610f677ae98a52af81f779d2"><span class="id" title="notation">*</span></a> 0 <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#1c39bf18749e5cc609e83c0a0ba5a372"><span class="id" title="notation">=</span></a> 0.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+... or equivalently: 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="P_m0r'"><span class="id" title="definition">P_m0r'</span></a> : <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Datatypes.html#nat"><span class="id" title="inductive">nat</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a><span class="id" title="keyword">Prop</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">fun</span> <span class="id" title="var">n</span> =&gt; <a class="idref" href="IndPrinciples.html#n"><span class="id" title="variable">n</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Peano.html#697e4695610f677ae98a52af81f779d2"><span class="id" title="notation">*</span></a> 0 <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#1c39bf18749e5cc609e83c0a0ba5a372"><span class="id" title="notation">=</span></a> 0.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Now it is easier to see where <span class="inlinecode"><a class="idref" href="IndPrinciples.html#P_m0r"><span class="id" title="definition">P_m0r</span></a></span> appears in the proof. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Theorem</span> <a name="mult_0_r''"><span class="id" title="lemma">mult_0_r''</span></a> : <span class="id" title="keyword">forall</span> <span class="id" title="var">n</span>:<a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Datatypes.html#nat"><span class="id" title="inductive">nat</span></a>,<br/>
+&nbsp;&nbsp;<a class="idref" href="IndPrinciples.html#P_m0r"><span class="id" title="definition">P_m0r</span></a> <a class="idref" href="IndPrinciples.html#n"><span class="id" title="variable">n</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Datatypes.html#nat_ind"><span class="id" title="definition">nat_ind</span></a>.<br/>
+&nbsp;&nbsp;-  <span class="id" title="tactic">reflexivity</span>.<br/>
+&nbsp;&nbsp;- <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">n</span> <span class="id" title="var">IHn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="IndPrinciples.html#P_m0r"><span class="id" title="definition">P_m0r</span></a> <span class="id" title="tactic">in</span> <span class="id" title="var">IHn</span>. <span class="id" title="tactic">unfold</span> <a class="idref" href="IndPrinciples.html#P_m0r"><span class="id" title="definition">P_m0r</span></a>. <span class="id" title="tactic">simpl</span>. <span class="id" title="tactic">apply</span> <span class="id" title="var">IHn</span>. <span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+This extra naming step isn't something that we do in
+    normal proofs, but it is useful to do it explicitly for an example
+    or two, because it allows us to see exactly what the induction
+    hypothesis is.  If we prove <span class="inlinecode"><span class="id" title="keyword">forall</span></span> <span class="inlinecode"><a class="idref" href="Basics.html#n"><span class="id" title="variable">n</span></a>,</span> <span class="inlinecode"><a class="idref" href="IndPrinciples.html#P_m0r"><span class="id" title="definition">P_m0r</span></a></span> <span class="inlinecode"><a class="idref" href="Basics.html#n"><span class="id" title="variable">n</span></a></span> by induction on
+    <span class="inlinecode"><a class="idref" href="Basics.html#n"><span class="id" title="variable">n</span></a></span> (using either <span class="inlinecode"><span class="id" title="tactic">induction</span></span> or <span class="inlinecode"><span class="id" title="tactic">apply</span></span> <span class="inlinecode"><a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Datatypes.html#nat_ind"><span class="id" title="definition">nat_ind</span></a></span>), we see that the
+    first subgoal requires us to prove <span class="inlinecode"><a class="idref" href="IndPrinciples.html#P_m0r"><span class="id" title="definition">P_m0r</span></a></span> <span class="inlinecode">0</span> ("<span class="inlinecode"><a class="idref" href="Logic.html#P"><span class="id" title="variable">P</span></a></span> holds for
+    zero"), while the second subgoal requires us to prove <span class="inlinecode"><span class="id" title="keyword">forall</span></span> <span class="inlinecode"><a class="idref" href="Logic.html#n'"><span class="id" title="variable">n'</span></a>,</span>
+    <span class="inlinecode"><a class="idref" href="IndPrinciples.html#P_m0r"><span class="id" title="definition">P_m0r</span></a></span> <span class="inlinecode"><a class="idref" href="Logic.html#n'"><span class="id" title="variable">n'</span></a></span> <span class="inlinecode">-&gt;</span> <span class="inlinecode"><a class="idref" href="IndPrinciples.html#P_m0r"><span class="id" title="definition">P_m0r</span></a></span> <span class="inlinecode">(<a class="idref" href="Basics.html#NatPlayground.S"><span class="id" title="constructor">S</span></a></span> <span class="inlinecode"><a class="idref" href="Logic.html#n'"><span class="id" title="variable">n'</span></a>)</span> (that is "<span class="inlinecode"><a class="idref" href="Logic.html#P"><span class="id" title="variable">P</span></a></span> holds of <span class="inlinecode"><a class="idref" href="Basics.html#NatPlayground.S"><span class="id" title="constructor">S</span></a></span> <span class="inlinecode"><a class="idref" href="Logic.html#n'"><span class="id" title="variable">n'</span></a></span> if it
+    holds of <span class="inlinecode"><a class="idref" href="Logic.html#n'"><span class="id" title="variable">n'</span></a></span>" or, more elegantly, "<span class="inlinecode"><a class="idref" href="Logic.html#P"><span class="id" title="variable">P</span></a></span> is preserved by <span class="inlinecode"><a class="idref" href="Basics.html#NatPlayground.S"><span class="id" title="constructor">S</span></a></span>").
+    The <i>induction hypothesis</i> is the premise of this latter
+    implication -- the assumption that <span class="inlinecode"><a class="idref" href="Logic.html#P"><span class="id" title="variable">P</span></a></span> holds of <span class="inlinecode"><a class="idref" href="Logic.html#n'"><span class="id" title="variable">n'</span></a></span>, which we are
+    allowed to use in proving that <span class="inlinecode"><a class="idref" href="Logic.html#P"><span class="id" title="variable">P</span></a></span> holds for <span class="inlinecode"><a class="idref" href="Basics.html#NatPlayground.S"><span class="id" title="constructor">S</span></a></span> <span class="inlinecode"><a class="idref" href="Logic.html#n'"><span class="id" title="variable">n'</span></a></span>. 
+</div>
+<div class="code">
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab294"></a><h1 class="section">More on the <span class="inlinecode"><span class="id" title="tactic">induction</span></span> Tactic</h1>
+
+<div class="paragraph"> </div>
+
+ The <span class="inlinecode"><span class="id" title="tactic">induction</span></span> tactic actually does even more low-level
+    bookkeeping for us than we discussed above.
+
+<div class="paragraph"> </div>
+
+    Recall the informal statement of the induction principle for
+    natural numbers:
+<ul class="doclist">
+<li> If <span class="inlinecode"><a class="idref" href="Logic.html#P"><span class="id" title="variable">P</span></a></span> <span class="inlinecode"><a class="idref" href="Basics.html#n"><span class="id" title="variable">n</span></a></span> is some proposition involving a natural number n, and
+        we want to show that P holds for <i>all</i> numbers n, we can
+        reason like this:
+<ul class="doclist">
+<li> show that <span class="inlinecode"><a class="idref" href="Logic.html#P"><span class="id" title="variable">P</span></a></span> <span class="inlinecode"><a class="idref" href="Basics.html#NatPlayground.O"><span class="id" title="constructor">O</span></a></span> holds
+
+</li>
+<li> show that, if <span class="inlinecode"><a class="idref" href="Logic.html#P"><span class="id" title="variable">P</span></a></span> <span class="inlinecode"><a class="idref" href="Logic.html#n'"><span class="id" title="variable">n'</span></a></span> holds, then so does <span class="inlinecode"><a class="idref" href="Logic.html#P"><span class="id" title="variable">P</span></a></span> <span class="inlinecode">(<a class="idref" href="Basics.html#NatPlayground.S"><span class="id" title="constructor">S</span></a></span> <span class="inlinecode"><a class="idref" href="Logic.html#n'"><span class="id" title="variable">n'</span></a>)</span>
+
+</li>
+<li> conclude that <span class="inlinecode"><a class="idref" href="Logic.html#P"><span class="id" title="variable">P</span></a></span> <span class="inlinecode"><a class="idref" href="Basics.html#n"><span class="id" title="variable">n</span></a></span> holds for all n.
+
+</li>
+</ul>
+
+</li>
+</ul>
+    So, when we begin a proof with <span class="inlinecode"><span class="id" title="tactic">intros</span></span> <span class="inlinecode"><a class="idref" href="Basics.html#n"><span class="id" title="variable">n</span></a></span> and then <span class="inlinecode"><span class="id" title="tactic">induction</span></span> <span class="inlinecode"><a class="idref" href="Basics.html#n"><span class="id" title="variable">n</span></a></span>,
+    we are first telling Coq to consider a <i>particular</i> <span class="inlinecode"><a class="idref" href="Basics.html#n"><span class="id" title="variable">n</span></a></span> (by
+    introducing it into the context) and then telling it to prove
+    something about <i>all</i> numbers (by using induction).
+
+<div class="paragraph"> </div>
+
+    What Coq actually does in this situation, internally, is to
+    "re-generalize" the variable we perform induction on.  For
+    example, in our original proof that <span class="inlinecode"><a class="idref" href="Poly.html#Exercises.Church.plus"><span class="id" title="definition">plus</span></a></span> is associative... 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Theorem</span> <a name="plus_assoc'"><span class="id" title="lemma">plus_assoc'</span></a> : <span class="id" title="keyword">forall</span> <span class="id" title="var">n</span> <span class="id" title="var">m</span> <span class="id" title="var">p</span> : <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Datatypes.html#nat"><span class="id" title="inductive">nat</span></a>,<br/>
+&nbsp;&nbsp;<a class="idref" href="IndPrinciples.html#n"><span class="id" title="variable">n</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Peano.html#b3eea360671e1b32b18a26e15b3aace3"><span class="id" title="notation">+</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Peano.html#b3eea360671e1b32b18a26e15b3aace3"><span class="id" title="notation">(</span></a><a class="idref" href="IndPrinciples.html#m"><span class="id" title="variable">m</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Peano.html#b3eea360671e1b32b18a26e15b3aace3"><span class="id" title="notation">+</span></a> <a class="idref" href="IndPrinciples.html#p"><span class="id" title="variable">p</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Peano.html#b3eea360671e1b32b18a26e15b3aace3"><span class="id" title="notation">)</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#1c39bf18749e5cc609e83c0a0ba5a372"><span class="id" title="notation">=</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Peano.html#b3eea360671e1b32b18a26e15b3aace3"><span class="id" title="notation">(</span></a><a class="idref" href="IndPrinciples.html#n"><span class="id" title="variable">n</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Peano.html#b3eea360671e1b32b18a26e15b3aace3"><span class="id" title="notation">+</span></a> <a class="idref" href="IndPrinciples.html#m"><span class="id" title="variable">m</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Peano.html#b3eea360671e1b32b18a26e15b3aace3"><span class="id" title="notation">)</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Peano.html#b3eea360671e1b32b18a26e15b3aace3"><span class="id" title="notation">+</span></a> <a class="idref" href="IndPrinciples.html#p"><span class="id" title="variable">p</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">n</span> <span class="id" title="var">m</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">n</span> <span class="id" title="keyword">as</span> [| <span class="id" title="var">n'</span>].<br/>
+&nbsp;&nbsp;-  <span class="id" title="tactic">reflexivity</span>.<br/>
+&nbsp;&nbsp;- <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">simpl</span>. <span class="id" title="tactic">rewrite</span> -&gt; <span class="id" title="var">IHn'</span>. <span class="id" title="tactic">reflexivity</span>. <span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+It also works to apply <span class="inlinecode"><span class="id" title="tactic">induction</span></span> to a variable that is
+    quantified in the goal. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Theorem</span> <a name="plus_comm'"><span class="id" title="lemma">plus_comm'</span></a> : <span class="id" title="keyword">forall</span> <span class="id" title="var">n</span> <span class="id" title="var">m</span> : <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Datatypes.html#nat"><span class="id" title="inductive">nat</span></a>,<br/>
+&nbsp;&nbsp;<a class="idref" href="IndPrinciples.html#n"><span class="id" title="variable">n</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Peano.html#b3eea360671e1b32b18a26e15b3aace3"><span class="id" title="notation">+</span></a> <a class="idref" href="IndPrinciples.html#m"><span class="id" title="variable">m</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#1c39bf18749e5cc609e83c0a0ba5a372"><span class="id" title="notation">=</span></a> <a class="idref" href="IndPrinciples.html#m"><span class="id" title="variable">m</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Peano.html#b3eea360671e1b32b18a26e15b3aace3"><span class="id" title="notation">+</span></a> <a class="idref" href="IndPrinciples.html#n"><span class="id" title="variable">n</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">n</span> <span class="id" title="keyword">as</span> [| <span class="id" title="var">n'</span>].<br/>
+&nbsp;&nbsp;-  <span class="id" title="tactic">intros</span> <span class="id" title="var">m</span>. <span class="id" title="tactic">rewrite</span> &lt;- <a class="idref" href="Induction.html#plus_n_O"><span class="id" title="lemma">plus_n_O</span></a>. <span class="id" title="tactic">reflexivity</span>.<br/>
+&nbsp;&nbsp;-  <span class="id" title="tactic">intros</span> <span class="id" title="var">m</span>. <span class="id" title="tactic">simpl</span>. <span class="id" title="tactic">rewrite</span> -&gt; <span class="id" title="var">IHn'</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> &lt;- <a class="idref" href="Induction.html#plus_n_Sm"><span class="id" title="axiom">plus_n_Sm</span></a>. <span class="id" title="tactic">reflexivity</span>. <span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Note that <span class="inlinecode"><span class="id" title="tactic">induction</span></span> <span class="inlinecode"><a class="idref" href="Basics.html#n"><span class="id" title="variable">n</span></a></span> leaves <span class="inlinecode"><a class="idref" href="Basics.html#m"><span class="id" title="variable">m</span></a></span> still bound in the goal --
+    i.e., what we are proving inductively is a statement beginning
+    with <span class="inlinecode"><span class="id" title="keyword">forall</span></span> <span class="inlinecode"><a class="idref" href="Basics.html#m"><span class="id" title="variable">m</span></a></span>.
+
+<div class="paragraph"> </div>
+
+    If we do <span class="inlinecode"><span class="id" title="tactic">induction</span></span> on a variable that is quantified in the goal
+    <i>after</i> some other quantifiers, the <span class="inlinecode"><span class="id" title="tactic">induction</span></span> tactic will
+    automatically introduce the variables bound by these quantifiers
+    into the context. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Theorem</span> <a name="plus_comm''"><span class="id" title="lemma">plus_comm''</span></a> : <span class="id" title="keyword">forall</span> <span class="id" title="var">n</span> <span class="id" title="var">m</span> : <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Datatypes.html#nat"><span class="id" title="inductive">nat</span></a>,<br/>
+&nbsp;&nbsp;<a class="idref" href="IndPrinciples.html#n"><span class="id" title="variable">n</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Peano.html#b3eea360671e1b32b18a26e15b3aace3"><span class="id" title="notation">+</span></a> <a class="idref" href="IndPrinciples.html#m"><span class="id" title="variable">m</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#1c39bf18749e5cc609e83c0a0ba5a372"><span class="id" title="notation">=</span></a> <a class="idref" href="IndPrinciples.html#m"><span class="id" title="variable">m</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Peano.html#b3eea360671e1b32b18a26e15b3aace3"><span class="id" title="notation">+</span></a> <a class="idref" href="IndPrinciples.html#n"><span class="id" title="variable">n</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">m</span> <span class="id" title="keyword">as</span> [| <span class="id" title="var">m'</span>].<br/>
+&nbsp;&nbsp;-  <span class="id" title="tactic">simpl</span>. <span class="id" title="tactic">rewrite</span> &lt;- <a class="idref" href="Induction.html#plus_n_O"><span class="id" title="lemma">plus_n_O</span></a>. <span class="id" title="tactic">reflexivity</span>.<br/>
+&nbsp;&nbsp;-  <span class="id" title="tactic">simpl</span>. <span class="id" title="tactic">rewrite</span> &lt;- <span class="id" title="var">IHm'</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> &lt;- <a class="idref" href="Induction.html#plus_n_Sm"><span class="id" title="axiom">plus_n_Sm</span></a>. <span class="id" title="tactic">reflexivity</span>. <span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab295"></a><h4 class="section">Exercise: 1 star, standard, optional (plus_explicit_prop)</h4>
+
+
+<div class="paragraph"> </div>
+
+    Rewrite both <span class="inlinecode"><a class="idref" href="IndPrinciples.html#plus_assoc'"><span class="id" title="lemma">plus_assoc'</span></a></span> and <span class="inlinecode"><a class="idref" href="IndPrinciples.html#plus_comm'"><span class="id" title="lemma">plus_comm'</span></a></span> and their proofs in
+    the same style as <span class="inlinecode"><a class="idref" href="IndPrinciples.html#mult_0_r''"><span class="id" title="lemma">mult_0_r''</span></a></span> above -- that is, for each theorem,
+    give an explicit <span class="inlinecode"><span class="id" title="keyword">Definition</span></span> of the proposition being proved by
+    induction, and state the theorem and proof in terms of this
+    defined proposition.  
+</div>
+<div class="code">
+
+<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab296"></a><h1 class="section">Induction Principles in <span class="inlinecode"><span class="id" title="keyword">Prop</span></span></h1>
+
+<div class="paragraph"> </div>
+
+ Earlier, we looked in detail at the induction principles that Coq
+    generates for inductively defined <i>sets</i>.  The induction
+    principles for inductively defined <i>propositions</i> like <span class="inlinecode"><a class="idref" href="IndProp.html#even"><span class="id" title="inductive">even</span></a></span> are a
+    tiny bit more complicated.  As with all induction principles, we
+    want to use the induction principle on <span class="inlinecode"><a class="idref" href="IndProp.html#even"><span class="id" title="inductive">even</span></a></span> to prove things by
+    inductively considering the possible shapes that something in <span class="inlinecode"><a class="idref" href="IndProp.html#even"><span class="id" title="inductive">even</span></a></span>
+    can have.  Intuitively speaking, however, what we want to prove
+    are not statements about <i>evidence</i> but statements about
+    <i>numbers</i>: accordingly, we want an induction principle that lets
+    us prove properties of numbers by induction on evidence.
+
+<div class="paragraph"> </div>
+
+    For example, from what we've said so far, you might expect the
+    inductive definition of <span class="inlinecode"><a class="idref" href="IndProp.html#even"><span class="id" title="inductive">even</span></a></span>...
+
+<div class="paragraph"> </div>
+
+      Inductive even : nat -&gt; Prop :=
+      | ev_0 : even 0
+      | ev_SS : forall n : nat, even n -&gt; even (S (S n)).
+
+<div class="paragraph"> </div>
+
+    ...to give rise to an induction principle that looks like this...
+
+<div class="paragraph"> </div>
+
+    ev_ind_max : forall P : (forall n : nat, even n -&gt; Prop),
+         P O ev_0 -&gt;
+         (forall (m : nat) (E : even m),
+            P m E -&gt;
+            P (S (S m)) (ev_SS m E)) -&gt;
+         forall (n : nat) (E : even n),
+         P n E
+
+<div class="paragraph"> </div>
+
+     ... because:
+
+<div class="paragraph"> </div>
+
+<ul class="doclist">
+<li> Since <span class="inlinecode"><a class="idref" href="IndProp.html#even"><span class="id" title="inductive">even</span></a></span> is indexed by a number <span class="inlinecode"><a class="idref" href="Basics.html#n"><span class="id" title="variable">n</span></a></span> (every <span class="inlinecode"><a class="idref" href="IndProp.html#even"><span class="id" title="inductive">even</span></a></span> object <span class="inlinecode"><span class="id" title="var">E</span></span> is
+       a piece of evidence that some particular number <span class="inlinecode"><a class="idref" href="Basics.html#n"><span class="id" title="variable">n</span></a></span> is even),
+       the proposition <span class="inlinecode"><a class="idref" href="Logic.html#P"><span class="id" title="variable">P</span></a></span> is parameterized by both <span class="inlinecode"><a class="idref" href="Basics.html#n"><span class="id" title="variable">n</span></a></span> and <span class="inlinecode"><span class="id" title="var">E</span></span> --
+       that is, the induction principle can be used to prove
+       assertions involving both an even number and the evidence that
+       it is even.
+
+<div class="paragraph"> </div>
+
+
+</li>
+<li> Since there are two ways of giving evidence of evenness (<span class="inlinecode"><a class="idref" href="IndProp.html#even"><span class="id" title="inductive">even</span></a></span>
+       has two constructors), applying the induction principle
+       generates two subgoals:
+
+<div class="paragraph"> </div>
+
+<ul class="doclist">
+<li> We must prove that <span class="inlinecode"><a class="idref" href="Logic.html#P"><span class="id" title="variable">P</span></a></span> holds for <span class="inlinecode"><a class="idref" href="Basics.html#NatPlayground.O"><span class="id" title="constructor">O</span></a></span> and <span class="inlinecode"><a class="idref" href="IndProp.html#ev_0"><span class="id" title="constructor">ev_0</span></a></span>.
+
+<div class="paragraph"> </div>
+
+
+</li>
+<li> We must prove that, whenever <span class="inlinecode"><a class="idref" href="Basics.html#n"><span class="id" title="variable">n</span></a></span> is an even number and <span class="inlinecode"><span class="id" title="var">E</span></span>
+           is an evidence of its evenness, if <span class="inlinecode"><a class="idref" href="Logic.html#P"><span class="id" title="variable">P</span></a></span> holds of <span class="inlinecode"><a class="idref" href="Basics.html#n"><span class="id" title="variable">n</span></a></span> and
+           <span class="inlinecode"><span class="id" title="var">E</span></span>, then it also holds of <span class="inlinecode"><a class="idref" href="Basics.html#NatPlayground.S"><span class="id" title="constructor">S</span></a></span> <span class="inlinecode">(<a class="idref" href="Basics.html#NatPlayground.S"><span class="id" title="constructor">S</span></a></span> <span class="inlinecode"><a class="idref" href="Basics.html#n"><span class="id" title="variable">n</span></a>)</span> and <span class="inlinecode"><a class="idref" href="IndProp.html#ev_SS"><span class="id" title="constructor">ev_SS</span></a></span> <span class="inlinecode"><a class="idref" href="Basics.html#n"><span class="id" title="variable">n</span></a></span> <span class="inlinecode"><span class="id" title="var">E</span></span>.
+
+<div class="paragraph"> </div>
+
+
+</li>
+</ul>
+
+</li>
+<li> If these subgoals can be proved, then the induction principle
+       tells us that <span class="inlinecode"><a class="idref" href="Logic.html#P"><span class="id" title="variable">P</span></a></span> is true for <i>all</i> even numbers <span class="inlinecode"><a class="idref" href="Basics.html#n"><span class="id" title="variable">n</span></a></span> and
+       evidence <span class="inlinecode"><span class="id" title="var">E</span></span> of their evenness.
+
+</li>
+</ul>
+
+<div class="paragraph"> </div>
+
+    This is more flexibility than we normally need or want: it is
+    giving us a way to prove logical assertions where the assertion
+    involves properties of some piece of <i>evidence</i> of evenness, while
+    all we really care about is proving properties of <i>numbers</i> that
+    are even -- we are interested in assertions about numbers, not
+    about evidence.  It would therefore be more convenient to have an
+    induction principle for proving propositions <span class="inlinecode"><a class="idref" href="Logic.html#P"><span class="id" title="variable">P</span></a></span> that are
+    parameterized just by <span class="inlinecode"><a class="idref" href="Basics.html#n"><span class="id" title="variable">n</span></a></span> and whose conclusion establishes <span class="inlinecode"><a class="idref" href="Logic.html#P"><span class="id" title="variable">P</span></a></span> for
+    all even numbers <span class="inlinecode"><a class="idref" href="Basics.html#n"><span class="id" title="variable">n</span></a></span>:
+
+<div class="paragraph"> </div>
+
+       forall P : nat -&gt; Prop,
+       ... -&gt;
+       forall n : nat,
+       even n -&gt; P n
+
+<div class="paragraph"> </div>
+
+    For this reason, Coq actually generates the following simplified
+    induction principle for <span class="inlinecode"><a class="idref" href="IndProp.html#even"><span class="id" title="inductive">even</span></a></span>: 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Check</span> <a class="idref" href="IndProp.html#even_ind"><span class="id" title="definition">even_ind</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+In particular, Coq has dropped the evidence term <span class="inlinecode"><span class="id" title="var">E</span></span> as a
+    parameter of the the proposition <span class="inlinecode"><a class="idref" href="Logic.html#P"><span class="id" title="variable">P</span></a></span>. 
+<div class="paragraph"> </div>
+
+ In English, <span class="inlinecode"><span class="id" title="var">ev_ind</span></span> says:
+
+<div class="paragraph"> </div>
+
+<ul class="doclist">
+<li> Suppose, <span class="inlinecode"><a class="idref" href="Logic.html#P"><span class="id" title="variable">P</span></a></span> is a property of natural numbers (that is, <span class="inlinecode"><a class="idref" href="Logic.html#P"><span class="id" title="variable">P</span></a></span> <span class="inlinecode"><a class="idref" href="Basics.html#n"><span class="id" title="variable">n</span></a></span> is
+      a <span class="inlinecode"><span class="id" title="keyword">Prop</span></span> for every <span class="inlinecode"><a class="idref" href="Basics.html#n"><span class="id" title="variable">n</span></a></span>).  To show that <span class="inlinecode"><a class="idref" href="Logic.html#P"><span class="id" title="variable">P</span></a></span> <span class="inlinecode"><a class="idref" href="Basics.html#n"><span class="id" title="variable">n</span></a></span> holds whenever <span class="inlinecode"><a class="idref" href="Basics.html#n"><span class="id" title="variable">n</span></a></span>
+      is even, it suffices to show:
+
+<div class="paragraph"> </div>
+
+<ul class="doclist">
+<li> <span class="inlinecode"><a class="idref" href="Logic.html#P"><span class="id" title="variable">P</span></a></span> holds for <span class="inlinecode">0</span>,
+
+<div class="paragraph"> </div>
+
+
+</li>
+<li> for any <span class="inlinecode"><a class="idref" href="Basics.html#n"><span class="id" title="variable">n</span></a></span>, if <span class="inlinecode"><a class="idref" href="Basics.html#n"><span class="id" title="variable">n</span></a></span> is even and <span class="inlinecode"><a class="idref" href="Logic.html#P"><span class="id" title="variable">P</span></a></span> holds for <span class="inlinecode"><a class="idref" href="Basics.html#n"><span class="id" title="variable">n</span></a></span>, then <span class="inlinecode"><a class="idref" href="Logic.html#P"><span class="id" title="variable">P</span></a></span>
+        holds for <span class="inlinecode"><a class="idref" href="Basics.html#NatPlayground.S"><span class="id" title="constructor">S</span></a></span> <span class="inlinecode">(<a class="idref" href="Basics.html#NatPlayground.S"><span class="id" title="constructor">S</span></a></span> <span class="inlinecode"><a class="idref" href="Basics.html#n"><span class="id" title="variable">n</span></a>)</span>. 
+</li>
+</ul>
+
+</li>
+</ul>
+
+<div class="paragraph"> </div>
+
+ As expected, we can apply <span class="inlinecode"><span class="id" title="var">ev_ind</span></span> directly instead of using
+    <span class="inlinecode"><span class="id" title="tactic">induction</span></span>.  For example, we can use it to show that <span class="inlinecode"><a class="idref" href="IndProp.html#even'"><span class="id" title="inductive">even'</span></a></span> (the
+    slightly awkward alternate definition of evenness that we saw in
+    an exercise in the \chap{IndProp} chapter) is equivalent to the
+    cleaner inductive definition <span class="inlinecode"><a class="idref" href="IndProp.html#even"><span class="id" title="inductive">even</span></a></span>: 
+</div>
+<div class="code">
+<span class="id" title="keyword">Theorem</span> <a name="ev_ev'"><span class="id" title="lemma">ev_ev'</span></a> : <span class="id" title="keyword">forall</span> <span class="id" title="var">n</span>, <a class="idref" href="IndProp.html#even"><span class="id" title="inductive">even</span></a> <a class="idref" href="IndPrinciples.html#n"><span class="id" title="variable">n</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="IndProp.html#even'"><span class="id" title="inductive">even'</span></a> <a class="idref" href="IndPrinciples.html#n"><span class="id" title="variable">n</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="IndProp.html#even_ind"><span class="id" title="definition">even_ind</span></a>.<br/>
+&nbsp;&nbsp;- <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="IndProp.html#even'_0"><span class="id" title="constructor">even'_0</span></a>.<br/>
+&nbsp;&nbsp;- <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">m</span> <span class="id" title="var">Hm</span> <span class="id" title="var">IH</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="IndProp.html#even'_sum"><span class="id" title="constructor">even'_sum</span></a> 2 <span class="id" title="var">m</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="IndProp.html#even'_2"><span class="id" title="constructor">even'_2</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <span class="id" title="var">IH</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+The precise form of an <span class="inlinecode"><span class="id" title="keyword">Inductive</span></span> definition can affect the
+    induction principle Coq generates.
+
+<div class="paragraph"> </div>
+
+    For example, in chapter <span class="inlinecode"><span class="id" title="library">IndProp</span></span>, we defined <span class="inlinecode">&lt;=</span> as: 
+</div>
+<div class="code">
+
+<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+This definition can be streamlined a little by observing that the
+    left-hand argument <span class="inlinecode"><a class="idref" href="Basics.html#n"><span class="id" title="variable">n</span></a></span> is the same everywhere in the definition,
+    so we can actually make it a "general parameter" to the whole
+    definition, rather than an argument to each constructor. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Inductive</span> <a name="le"><span class="id" title="inductive">le</span></a> (<span class="id" title="var">n</span>:<a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Datatypes.html#nat"><span class="id" title="inductive">nat</span></a>) : <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Datatypes.html#nat"><span class="id" title="inductive">nat</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a> <span class="id" title="keyword">Prop</span> :=<br/>
+&nbsp;&nbsp;| <a name="le_n"><span class="id" title="constructor">le_n</span></a> : <a class="idref" href="IndPrinciples.html#le"><span class="id" title="inductive">le</span></a> <a class="idref" href="IndPrinciples.html#n"><span class="id" title="variable">n</span></a> <a class="idref" href="IndPrinciples.html#n"><span class="id" title="variable">n</span></a><br/>
+&nbsp;&nbsp;| <a name="le_S"><span class="id" title="constructor">le_S</span></a> <span class="id" title="var">m</span> (<span class="id" title="var">H</span> : <a class="idref" href="IndPrinciples.html#le"><span class="id" title="inductive">le</span></a> <a class="idref" href="IndPrinciples.html#n"><span class="id" title="variable">n</span></a> <a class="idref" href="IndPrinciples.html#m"><span class="id" title="variable">m</span></a>) : <a class="idref" href="IndPrinciples.html#le"><span class="id" title="inductive">le</span></a> <a class="idref" href="IndPrinciples.html#n"><span class="id" title="variable">n</span></a> (<a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Datatypes.html#S"><span class="id" title="constructor">S</span></a> <a class="idref" href="IndPrinciples.html#m"><span class="id" title="variable">m</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">Notation</span> <a name="75338fc4da155a86233c78260c4419ea"><span class="id" title="notation">&quot;</span></a>m &lt;= n" := (<a class="idref" href="IndPrinciples.html#le"><span class="id" title="inductive">le</span></a> <span class="id" title="var">m</span> <span class="id" title="var">n</span>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+The second one is better, even though it looks less symmetric.
+    Why?  Because it gives us a simpler induction principle. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Check</span> <a class="idref" href="IndPrinciples.html#le_ind"><span class="id" title="definition">le_ind</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab297"></a><h1 class="section">Formal vs. Informal Proofs by Induction</h1>
+
+<div class="paragraph"> </div>
+
+ Question: What is the relation between a formal proof of a
+    proposition <span class="inlinecode"><a class="idref" href="Logic.html#P"><span class="id" title="variable">P</span></a></span> and an informal proof of the same proposition <span class="inlinecode"><a class="idref" href="Logic.html#P"><span class="id" title="variable">P</span></a></span>?
+
+<div class="paragraph"> </div>
+
+    Answer: The latter should <i>teach</i> the reader how to produce the
+    former.
+
+<div class="paragraph"> </div>
+
+    Question: How much detail is needed??
+
+<div class="paragraph"> </div>
+
+    Unfortunately, there is no single right answer; rather, there is a
+    range of choices.
+
+<div class="paragraph"> </div>
+
+    At one end of the spectrum, we can essentially give the reader the
+    whole formal proof (i.e., the "informal" proof will amount to just
+    transcribing the formal one into words).  This may give the reader
+    the ability to reproduce the formal one for themselves, but it
+    probably doesn't <i>teach</i> them anything much.
+
+<div class="paragraph"> </div>
+
+   At the other end of the spectrum, we can say "The theorem is true
+   and you can figure out why for yourself if you think about it hard
+   enough."  This is also not a good teaching strategy, because often
+   writing the proof requires one or more significant insights into
+   the thing we're proving, and most readers will give up before they
+   rediscover all the same insights as we did.
+
+<div class="paragraph"> </div>
+
+   In the middle is the golden mean -- a proof that includes all of
+   the essential insights (saving the reader the hard work that we
+   went through to find the proof in the first place) plus high-level
+   suggestions for the more routine parts to save the reader from
+   spending too much time reconstructing these (e.g., what the IH says
+   and what must be shown in each case of an inductive proof), but not
+   so much detail that the main ideas are obscured.
+
+<div class="paragraph"> </div>
+
+   Since we've spent much of this chapter looking "under the hood" at
+   formal proofs by induction, now is a good moment to talk a little
+   about <i>informal</i> proofs by induction.
+
+<div class="paragraph"> </div>
+
+   In the real world of mathematical communication, written proofs
+   range from extremely longwinded and pedantic to extremely brief and
+   telegraphic.  Although the ideal is somewhere in between, while one
+   is getting used to the style it is better to start out at the
+   pedantic end.  Also, during the learning phase, it is probably
+   helpful to have a clear standard to compare against.  With this in
+   mind, we offer two templates -- one for proofs by induction over
+   <i>data</i> (i.e., where the thing we're doing induction on lives in
+   <span class="inlinecode"><span class="id" title="keyword">Type</span></span>) and one for proofs by induction over <i>evidence</i> (i.e.,
+   where the inductively defined thing lives in <span class="inlinecode"><span class="id" title="keyword">Prop</span></span>). 
+</div>
+<div class="code">
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab298"></a><h2 class="section">Induction Over an Inductively Defined Set</h2>
+
+<div class="paragraph"> </div>
+
+ <i>Template</i>:
+
+<div class="paragraph"> </div>
+
+<ul class="doclist">
+<li> <i>Theorem</i>: &lt;Universally quantified proposition of the form
+         "For all <span class="inlinecode"><a class="idref" href="Basics.html#n"><span class="id" title="variable">n</span></a>:<a class="idref" href="Basics.html#NatPlayground.S"><span class="id" title="constructor">S</span></a></span>, <span class="inlinecode"><a class="idref" href="Logic.html#P"><span class="id" title="variable">P</span></a>(<a class="idref" href="Basics.html#n"><span class="id" title="variable">n</span></a>)</span>," where <span class="inlinecode"><a class="idref" href="Basics.html#NatPlayground.S"><span class="id" title="constructor">S</span></a></span> is some inductively defined
+         set.&gt;
+
+<div class="paragraph"> </div>
+
+         <i>Proof</i>: By induction on <span class="inlinecode"><a class="idref" href="Basics.html#n"><span class="id" title="variable">n</span></a></span>.
+
+<div class="paragraph"> </div>
+
+           &lt;one case for each constructor <span class="inlinecode"><a class="idref" href="IndProp.html#c"><span class="id" title="definition">c</span></a></span> of <span class="inlinecode"><a class="idref" href="Basics.html#NatPlayground.S"><span class="id" title="constructor">S</span></a></span>...&gt;
+
+<div class="paragraph"> </div>
+
+<ul class="doclist">
+<li> Suppose <span class="inlinecode"><a class="idref" href="Basics.html#n"><span class="id" title="variable">n</span></a></span> <span class="inlinecode">=</span> <span class="inlinecode"><a class="idref" href="IndProp.html#c"><span class="id" title="definition">c</span></a></span> <span class="inlinecode"><a class="idref" href="Logic.html#a1"><span class="id" title="variable">a1</span></a></span> <span class="inlinecode">...</span> <span class="inlinecode"><span class="id" title="var">ak</span></span>, where &lt;...and here we state
+             the IH for each of the <span class="inlinecode"><a class="idref" href="Poly.html#MumbleGrumble.a"><span class="id" title="constructor">a</span></a></span>'s that has type <span class="inlinecode"><a class="idref" href="Basics.html#NatPlayground.S"><span class="id" title="constructor">S</span></a></span>, if any&gt;.
+             We must show &lt;...and here we restate <span class="inlinecode"><a class="idref" href="Logic.html#P"><span class="id" title="variable">P</span></a>(<a class="idref" href="IndProp.html#c"><span class="id" title="definition">c</span></a></span> <span class="inlinecode"><a class="idref" href="Logic.html#a1"><span class="id" title="variable">a1</span></a></span> <span class="inlinecode">...</span> <span class="inlinecode"><span class="id" title="var">ak</span>)</span>&gt;.
+
+<div class="paragraph"> </div>
+
+             &lt;go on and prove <span class="inlinecode"><a class="idref" href="Logic.html#P"><span class="id" title="variable">P</span></a>(<a class="idref" href="Basics.html#n"><span class="id" title="variable">n</span></a>)</span> to finish the case...&gt;
+
+<div class="paragraph"> </div>
+
+
+</li>
+<li> &lt;other cases similarly...&gt;                        <font size=-2>&#9744;</font>
+
+</li>
+</ul>
+
+</li>
+</ul>
+
+<div class="paragraph"> </div>
+
+    <i>Example</i>:
+
+<div class="paragraph"> </div>
+
+<ul class="doclist">
+<li> <i>Theorem</i>: For all sets <span class="inlinecode"><a class="idref" href="Imp.html#X"><span class="id" title="definition">X</span></a></span>, lists <span class="inlinecode"><a class="idref" href="Lists.html#l"><span class="id" title="variable">l</span></a></span> <span class="inlinecode">:</span> <span class="inlinecode"><a class="idref" href="Poly.html#list"><span class="id" title="inductive">list</span></a></span> <span class="inlinecode"><a class="idref" href="Imp.html#X"><span class="id" title="definition">X</span></a></span>, and numbers
+        <span class="inlinecode"><a class="idref" href="Basics.html#n"><span class="id" title="variable">n</span></a></span>, if <span class="inlinecode"><a class="idref" href="Poly.html#length"><span class="id" title="definition">length</span></a></span> <span class="inlinecode"><a class="idref" href="Lists.html#l"><span class="id" title="variable">l</span></a></span> <span class="inlinecode">=</span> <span class="inlinecode"><a class="idref" href="Basics.html#n"><span class="id" title="variable">n</span></a></span> then <span class="inlinecode"><span class="id" title="var">index</span></span> <span class="inlinecode">(<a class="idref" href="Basics.html#NatPlayground.S"><span class="id" title="constructor">S</span></a></span> <span class="inlinecode"><a class="idref" href="Basics.html#n"><span class="id" title="variable">n</span></a>)</span> <span class="inlinecode"><a class="idref" href="Lists.html#l"><span class="id" title="variable">l</span></a></span> <span class="inlinecode">=</span> <span class="inlinecode"><a class="idref" href="Poly.html#OptionPlayground.None"><span class="id" title="constructor">None</span></a></span>.
+
+<div class="paragraph"> </div>
+
+        <i>Proof</i>: By induction on <span class="inlinecode"><a class="idref" href="Lists.html#l"><span class="id" title="variable">l</span></a></span>.
+
+<div class="paragraph"> </div>
+
+<ul class="doclist">
+<li> Suppose <span class="inlinecode"><a class="idref" href="Lists.html#l"><span class="id" title="variable">l</span></a></span> <span class="inlinecode">=</span> <span class="inlinecode">[]</span>.  We must show, for all numbers <span class="inlinecode"><a class="idref" href="Basics.html#n"><span class="id" title="variable">n</span></a></span>,
+          that, if <span class="inlinecode"><a class="idref" href="Poly.html#length"><span class="id" title="definition">length</span></a></span> <span class="inlinecode">[]</span> <span class="inlinecode">=</span> <span class="inlinecode"><a class="idref" href="Basics.html#n"><span class="id" title="variable">n</span></a></span>, then <span class="inlinecode"><span class="id" title="var">index</span></span> <span class="inlinecode">(<a class="idref" href="Basics.html#NatPlayground.S"><span class="id" title="constructor">S</span></a></span> <span class="inlinecode"><a class="idref" href="Basics.html#n"><span class="id" title="variable">n</span></a>)</span> <span class="inlinecode">[]</span> <span class="inlinecode">=</span>
+          <span class="inlinecode"><a class="idref" href="Poly.html#OptionPlayground.None"><span class="id" title="constructor">None</span></a></span>.
+
+<div class="paragraph"> </div>
+
+          This follows immediately from the definition of <span class="inlinecode"><span class="id" title="var">index</span></span>.
+
+<div class="paragraph"> </div>
+
+
+</li>
+<li> Suppose <span class="inlinecode"><a class="idref" href="Lists.html#l"><span class="id" title="variable">l</span></a></span> <span class="inlinecode">=</span> <span class="inlinecode"><a class="idref" href="Basics.html#x"><span class="id" title="variable">x</span></a></span> <span class="inlinecode">::</span> <span class="inlinecode"><a class="idref" href="Tactics.html#l'"><span class="id" title="variable">l'</span></a></span> for some <span class="inlinecode"><a class="idref" href="Basics.html#x"><span class="id" title="variable">x</span></a></span> and <span class="inlinecode"><a class="idref" href="Tactics.html#l'"><span class="id" title="variable">l'</span></a></span>, where
+          <span class="inlinecode"><a class="idref" href="Poly.html#length"><span class="id" title="definition">length</span></a></span> <span class="inlinecode"><a class="idref" href="Tactics.html#l'"><span class="id" title="variable">l'</span></a></span> <span class="inlinecode">=</span> <span class="inlinecode"><a class="idref" href="Logic.html#n'"><span class="id" title="variable">n'</span></a></span> implies <span class="inlinecode"><span class="id" title="var">index</span></span> <span class="inlinecode">(<a class="idref" href="Basics.html#NatPlayground.S"><span class="id" title="constructor">S</span></a></span> <span class="inlinecode"><a class="idref" href="Logic.html#n'"><span class="id" title="variable">n'</span></a>)</span> <span class="inlinecode"><a class="idref" href="Tactics.html#l'"><span class="id" title="variable">l'</span></a></span> <span class="inlinecode">=</span> <span class="inlinecode"><a class="idref" href="Poly.html#OptionPlayground.None"><span class="id" title="constructor">None</span></a></span>, for
+          any number <span class="inlinecode"><a class="idref" href="Logic.html#n'"><span class="id" title="variable">n'</span></a></span>.  We must show, for all <span class="inlinecode"><a class="idref" href="Basics.html#n"><span class="id" title="variable">n</span></a></span>, that, if
+          <span class="inlinecode"><a class="idref" href="Poly.html#length"><span class="id" title="definition">length</span></a></span> <span class="inlinecode">(<a class="idref" href="Basics.html#x"><span class="id" title="variable">x</span></a>::<a class="idref" href="Tactics.html#l'"><span class="id" title="variable">l'</span></a>)</span> <span class="inlinecode">=</span> <span class="inlinecode"><a class="idref" href="Basics.html#n"><span class="id" title="variable">n</span></a></span> then <span class="inlinecode"><span class="id" title="var">index</span></span> <span class="inlinecode">(<a class="idref" href="Basics.html#NatPlayground.S"><span class="id" title="constructor">S</span></a></span> <span class="inlinecode"><a class="idref" href="Basics.html#n"><span class="id" title="variable">n</span></a>)</span> <span class="inlinecode">(<a class="idref" href="Basics.html#x"><span class="id" title="variable">x</span></a>::<a class="idref" href="Tactics.html#l'"><span class="id" title="variable">l'</span></a>)</span> <span class="inlinecode">=</span>
+          <span class="inlinecode"><a class="idref" href="Poly.html#OptionPlayground.None"><span class="id" title="constructor">None</span></a></span>.
+
+<div class="paragraph"> </div>
+
+          Let <span class="inlinecode"><a class="idref" href="Basics.html#n"><span class="id" title="variable">n</span></a></span> be a number with <span class="inlinecode"><a class="idref" href="Poly.html#length"><span class="id" title="definition">length</span></a></span> <span class="inlinecode"><a class="idref" href="Lists.html#l"><span class="id" title="variable">l</span></a></span> <span class="inlinecode">=</span> <span class="inlinecode"><a class="idref" href="Basics.html#n"><span class="id" title="variable">n</span></a></span>.  Since
+
+<div class="paragraph"> </div>
+
+            length l = length (x::l') = S (length l'),
+
+<div class="paragraph"> </div>
+
+          it suffices to show that
+
+<div class="paragraph"> </div>
+
+            index (S (length l')) l' = None.
+
+<div class="paragraph"> </div>
+
+          But this follows directly from the induction hypothesis,
+          picking <span class="inlinecode"><a class="idref" href="Logic.html#n'"><span class="id" title="variable">n'</span></a></span> to be <span class="inlinecode"><a class="idref" href="Poly.html#length"><span class="id" title="definition">length</span></a></span> <span class="inlinecode"><a class="idref" href="Tactics.html#l'"><span class="id" title="variable">l'</span></a></span>.  <font size=-2>&#9744;</font> 
+</li>
+</ul>
+
+</li>
+</ul>
+
+</div>
+<div class="code">
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab299"></a><h2 class="section">Induction Over an Inductively Defined Proposition</h2>
+
+<div class="paragraph"> </div>
+
+ Since inductively defined proof objects are often called
+    "derivation trees," this form of proof is also known as <i>induction
+    on derivations</i>.
+
+<div class="paragraph"> </div>
+
+    <i>Template</i>:
+
+<div class="paragraph"> </div>
+
+<ul class="doclist">
+<li> <i>Theorem</i>: &lt;Proposition of the form "<span class="inlinecode"><a class="idref" href="Logic.html#Q"><span class="id" title="variable">Q</span></a></span> <span class="inlinecode">-&gt;</span> <span class="inlinecode"><a class="idref" href="Logic.html#P"><span class="id" title="variable">P</span></a></span>," where <span class="inlinecode"><a class="idref" href="Logic.html#Q"><span class="id" title="variable">Q</span></a></span> is
+         some inductively defined proposition (more generally,
+         "For all <span class="inlinecode"><a class="idref" href="Basics.html#x"><span class="id" title="variable">x</span></a></span> <span class="inlinecode"><a class="idref" href="Lists.html#y"><span class="id" title="variable">y</span></a></span> <span class="inlinecode"><a class="idref" href="Tactics.html#z"><span class="id" title="variable">z</span></a></span>, <span class="inlinecode"><a class="idref" href="Logic.html#Q"><span class="id" title="variable">Q</span></a></span> <span class="inlinecode"><a class="idref" href="Basics.html#x"><span class="id" title="variable">x</span></a></span> <span class="inlinecode"><a class="idref" href="Lists.html#y"><span class="id" title="variable">y</span></a></span> <span class="inlinecode"><a class="idref" href="Tactics.html#z"><span class="id" title="variable">z</span></a></span> <span class="inlinecode">-&gt;</span> <span class="inlinecode"><a class="idref" href="Logic.html#P"><span class="id" title="variable">P</span></a></span> <span class="inlinecode"><a class="idref" href="Basics.html#x"><span class="id" title="variable">x</span></a></span> <span class="inlinecode"><a class="idref" href="Lists.html#y"><span class="id" title="variable">y</span></a></span> <span class="inlinecode"><a class="idref" href="Tactics.html#z"><span class="id" title="variable">z</span></a></span>")&gt;
+
+<div class="paragraph"> </div>
+
+         <i>Proof</i>: By induction on a derivation of <span class="inlinecode"><a class="idref" href="Logic.html#Q"><span class="id" title="variable">Q</span></a></span>.  &lt;Or, more
+         generally, "Suppose we are given <span class="inlinecode"><a class="idref" href="Basics.html#x"><span class="id" title="variable">x</span></a></span>, <span class="inlinecode"><a class="idref" href="Lists.html#y"><span class="id" title="variable">y</span></a></span>, and <span class="inlinecode"><a class="idref" href="Tactics.html#z"><span class="id" title="variable">z</span></a></span>.  We
+         show that <span class="inlinecode"><a class="idref" href="Logic.html#Q"><span class="id" title="variable">Q</span></a></span> <span class="inlinecode"><a class="idref" href="Basics.html#x"><span class="id" title="variable">x</span></a></span> <span class="inlinecode"><a class="idref" href="Lists.html#y"><span class="id" title="variable">y</span></a></span> <span class="inlinecode"><a class="idref" href="Tactics.html#z"><span class="id" title="variable">z</span></a></span> implies <span class="inlinecode"><a class="idref" href="Logic.html#P"><span class="id" title="variable">P</span></a></span> <span class="inlinecode"><a class="idref" href="Basics.html#x"><span class="id" title="variable">x</span></a></span> <span class="inlinecode"><a class="idref" href="Lists.html#y"><span class="id" title="variable">y</span></a></span> <span class="inlinecode"><a class="idref" href="Tactics.html#z"><span class="id" title="variable">z</span></a></span>, by induction on a
+         derivation of <span class="inlinecode"><a class="idref" href="Logic.html#Q"><span class="id" title="variable">Q</span></a></span> <span class="inlinecode"><a class="idref" href="Basics.html#x"><span class="id" title="variable">x</span></a></span> <span class="inlinecode"><a class="idref" href="Lists.html#y"><span class="id" title="variable">y</span></a></span> <span class="inlinecode"><a class="idref" href="Tactics.html#z"><span class="id" title="variable">z</span></a></span>"...&gt;
+
+<div class="paragraph"> </div>
+
+           &lt;one case for each constructor <span class="inlinecode"><a class="idref" href="IndProp.html#c"><span class="id" title="definition">c</span></a></span> of <span class="inlinecode"><a class="idref" href="Logic.html#Q"><span class="id" title="variable">Q</span></a></span>...&gt;
+
+<div class="paragraph"> </div>
+
+<ul class="doclist">
+<li> Suppose the final rule used to show <span class="inlinecode"><a class="idref" href="Logic.html#Q"><span class="id" title="variable">Q</span></a></span> is <span class="inlinecode"><a class="idref" href="IndProp.html#c"><span class="id" title="definition">c</span></a></span>.  Then
+             &lt;...and here we state the types of all of the <span class="inlinecode"><a class="idref" href="Poly.html#MumbleGrumble.a"><span class="id" title="constructor">a</span></a></span>'s
+             together with any equalities that follow from the
+             definition of the constructor and the IH for each of
+             the <span class="inlinecode"><a class="idref" href="Poly.html#MumbleGrumble.a"><span class="id" title="constructor">a</span></a></span>'s that has type <span class="inlinecode"><a class="idref" href="Logic.html#Q"><span class="id" title="variable">Q</span></a></span>, if there are any&gt;.  We must
+             show &lt;...and here we restate <span class="inlinecode"><a class="idref" href="Logic.html#P"><span class="id" title="variable">P</span></a></span>&gt;.
+
+<div class="paragraph"> </div>
+
+             &lt;go on and prove <span class="inlinecode"><a class="idref" href="Logic.html#P"><span class="id" title="variable">P</span></a></span> to finish the case...&gt;
+
+<div class="paragraph"> </div>
+
+
+</li>
+<li> &lt;other cases similarly...&gt;                        <font size=-2>&#9744;</font>
+
+</li>
+</ul>
+
+</li>
+</ul>
+
+<div class="paragraph"> </div>
+
+    <i>Example</i>
+
+<ul class="doclist">
+<li> <i>Theorem</i>: The <span class="inlinecode">&lt;=</span> relation is transitive -- i.e., for all
+         numbers <span class="inlinecode"><a class="idref" href="Basics.html#n"><span class="id" title="variable">n</span></a></span>, <span class="inlinecode"><a class="idref" href="Basics.html#m"><span class="id" title="variable">m</span></a></span>, and <span class="inlinecode"><a class="idref" href="Basics.html#o"><span class="id" title="variable">o</span></a></span>, if <span class="inlinecode"><a class="idref" href="Basics.html#n"><span class="id" title="variable">n</span></a></span> <span class="inlinecode">&lt;=</span> <span class="inlinecode"><a class="idref" href="Basics.html#m"><span class="id" title="variable">m</span></a></span> and <span class="inlinecode"><a class="idref" href="Basics.html#m"><span class="id" title="variable">m</span></a></span> <span class="inlinecode">&lt;=</span> <span class="inlinecode"><a class="idref" href="Basics.html#o"><span class="id" title="variable">o</span></a></span>, then
+         <span class="inlinecode"><a class="idref" href="Basics.html#n"><span class="id" title="variable">n</span></a></span> <span class="inlinecode">&lt;=</span> <span class="inlinecode"><a class="idref" href="Basics.html#o"><span class="id" title="variable">o</span></a></span>.
+
+<div class="paragraph"> </div>
+
+         <i>Proof</i>: By induction on a derivation of <span class="inlinecode"><a class="idref" href="Basics.html#m"><span class="id" title="variable">m</span></a></span> <span class="inlinecode">&lt;=</span> <span class="inlinecode"><a class="idref" href="Basics.html#o"><span class="id" title="variable">o</span></a></span>.
+
+<div class="paragraph"> </div>
+
+<ul class="doclist">
+<li> Suppose the final rule used to show <span class="inlinecode"><a class="idref" href="Basics.html#m"><span class="id" title="variable">m</span></a></span> <span class="inlinecode">&lt;=</span> <span class="inlinecode"><a class="idref" href="Basics.html#o"><span class="id" title="variable">o</span></a></span> is
+             <span class="inlinecode"><a class="idref" href="IndPrinciples.html#le_n"><span class="id" title="constructor">le_n</span></a></span>. Then <span class="inlinecode"><a class="idref" href="Basics.html#m"><span class="id" title="variable">m</span></a></span> <span class="inlinecode">=</span> <span class="inlinecode"><a class="idref" href="Basics.html#o"><span class="id" title="variable">o</span></a></span> and we must show that <span class="inlinecode"><a class="idref" href="Basics.html#n"><span class="id" title="variable">n</span></a></span> <span class="inlinecode">&lt;=</span> <span class="inlinecode"><a class="idref" href="Basics.html#m"><span class="id" title="variable">m</span></a></span>,
+             which is immediate by hypothesis.
+
+<div class="paragraph"> </div>
+
+
+</li>
+<li> Suppose the final rule used to show <span class="inlinecode"><a class="idref" href="Basics.html#m"><span class="id" title="variable">m</span></a></span> <span class="inlinecode">&lt;=</span> <span class="inlinecode"><a class="idref" href="Basics.html#o"><span class="id" title="variable">o</span></a></span> is
+             <span class="inlinecode"><a class="idref" href="IndPrinciples.html#le_S"><span class="id" title="constructor">le_S</span></a></span>.  Then <span class="inlinecode"><a class="idref" href="Basics.html#o"><span class="id" title="variable">o</span></a></span> <span class="inlinecode">=</span> <span class="inlinecode"><a class="idref" href="Basics.html#NatPlayground.S"><span class="id" title="constructor">S</span></a></span> <span class="inlinecode"><span class="id" title="var">o'</span></span> for some <span class="inlinecode"><span class="id" title="var">o'</span></span> with <span class="inlinecode"><a class="idref" href="Basics.html#m"><span class="id" title="variable">m</span></a></span> <span class="inlinecode">&lt;=</span> <span class="inlinecode"><span class="id" title="var">o'</span></span>.
+             We must show that <span class="inlinecode"><a class="idref" href="Basics.html#n"><span class="id" title="variable">n</span></a></span> <span class="inlinecode">&lt;=</span> <span class="inlinecode"><a class="idref" href="Basics.html#NatPlayground.S"><span class="id" title="constructor">S</span></a></span> <span class="inlinecode"><span class="id" title="var">o'</span></span>.
+             By induction hypothesis, <span class="inlinecode"><a class="idref" href="Basics.html#n"><span class="id" title="variable">n</span></a></span> <span class="inlinecode">&lt;=</span> <span class="inlinecode"><span class="id" title="var">o'</span></span>.
+
+<div class="paragraph"> </div>
+
+             But then, by <span class="inlinecode"><a class="idref" href="IndPrinciples.html#le_S"><span class="id" title="constructor">le_S</span></a></span>, <span class="inlinecode"><a class="idref" href="Basics.html#n"><span class="id" title="variable">n</span></a></span> <span class="inlinecode">&lt;=</span> <span class="inlinecode"><a class="idref" href="Basics.html#NatPlayground.S"><span class="id" title="constructor">S</span></a></span> <span class="inlinecode"><span class="id" title="var">o'</span></span>.  <font size=-2>&#9744;</font> 
+</li>
+</ul>
+
+</li>
+</ul>
+
+</div>
+<div class="code">
+
+<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">表紙</a><hr/>This page has been generated by <a href="http://coq.inria.fr/">coqdoc</a><hr/>
+<a href="https://github.com/sfja/sfja">ソフトウェアの基礎 日本語化プロジェクト</a>
+</div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,952 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<link href="common/css/sf.css" rel="stylesheet" type="text/css"/>
+<title>論理の基礎</title>
+</head>
+<link href="common/jquery-ui/jquery-ui.css" rel="stylesheet">
+<script src="common/jquery-ui/external/jquery/jquery.js"></script>
+<script src="common/jquery-ui/jquery-ui.js"></script>
+<script src="common/toggleproofs.js"></script>
+<link href="common/css/lf.css" rel="stylesheet" type="text/css"/>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+<a href='../index.html'>
+<img src='common/media/image/sf_logo_sm.png'></a>
+</br><a href='index.html'><span class='booktitleinheader'>第 1 巻: 論理の基礎</span></a><br></br>
+<ul id='menu'>
+   <a href='toc.html'><li class='section_name'>目次</li></a>
+   <a href='coqindex.html'><li class='section_name'>索引</li></a>
+   <a href='deps.html'><li class='section_name'>全体図</li></a>
+</ul>
+</div>
+
+<div id="main">
+<h1 class="libtitle">Auto: More Automation</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Set</span> <span class="id" title="var">Warnings</span> "-notation-overridden,-parsing".<br/>
+<span class="id" title="var">From</span> <span class="id" title="var">Coq</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.omega.Omega.html#"><span class="id" title="library">omega.Omega</span></a>.<br/>
+<span class="id" title="var">From</span> <span class="id" title="var">LF</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Maps.html#"><span class="id" title="library">Maps</span></a>.<br/>
+<span class="id" title="var">From</span> <span class="id" title="var">LF</span> <span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="Imp.html#"><span class="id" title="library">Imp</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Up to now, we've used the more manual part of Coq's tactic
+    facilities.  In this chapter, we'll learn more about some of Coq's
+    powerful automation features: proof search via the <span class="inlinecode"><span class="id" title="tactic">auto</span></span> tactic,
+    automated forward reasoning via the <span class="inlinecode"><span class="id" title="keyword">Ltac</span></span> hypothesis matching
+    machinery, and deferred instantiation of existential variables
+    using <span class="inlinecode"><span class="id" title="tactic">eapply</span></span> and <span class="inlinecode"><span class="id" title="tactic">eauto</span></span>.  Using these features together with
+    Ltac's scripting facilities will enable us to make our proofs
+    startlingly short!  Used properly, they can also make proofs more
+    maintainable and robust to changes in underlying definitions.  A
+    deeper treatment of <span class="inlinecode"><span class="id" title="tactic">auto</span></span> and <span class="inlinecode"><span class="id" title="tactic">eauto</span></span> can be found in the
+    <span class="inlinecode"><span class="id" title="var">UseAuto</span></span> chapter in <i>Programming Language Foundations</i>.
+
+<div class="paragraph"> </div>
+
+    There's another major category of automation we haven't discussed
+    much yet, namely built-in decision procedures for specific kinds
+    of problems: <span class="inlinecode"><span class="id" title="tactic">omega</span></span> is one example, but there are others.  This
+    topic will be deferred for a while longer.
+
+<div class="paragraph"> </div>
+
+    Our motivating example will be this proof, repeated with just a
+    few small changes from the <span class="inlinecode"><span class="id" title="library">Imp</span></span> chapter.  We will simplify
+    this proof in several stages. 
+<div class="paragraph"> </div>
+
+ First, define a little Ltac macro to compress a common
+    pattern into a single command. 
+</div>
+<div class="code">
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">inv</span> <span class="id" title="var">H</span> := <span class="id" title="tactic">inversion</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">subst</span>; <span class="id" title="tactic">clear</span> <span class="id" title="var">H</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Theorem</span> <a name="ceval_deterministic"><span class="id" title="lemma">ceval_deterministic</span></a>: <span class="id" title="keyword">forall</span> <span class="id" title="var">c</span> <span class="id" title="var">st</span> <span class="id" title="var">st1</span> <span class="id" title="var">st2</span>,<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Auto.html#st"><span class="id" title="variable">st</span></a> <a class="idref" href="Imp.html#d602dfe99961027ee7b07f704d78b039"><span class="id" title="notation">=[</span></a> <a class="idref" href="Auto.html#c"><span class="id" title="variable">c</span></a> <a class="idref" href="Imp.html#d602dfe99961027ee7b07f704d78b039"><span class="id" title="notation">]=&gt;</span></a> <a class="idref" href="Auto.html#st1"><span class="id" title="variable">st1</span></a>  <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Auto.html#st"><span class="id" title="variable">st</span></a> <a class="idref" href="Imp.html#d602dfe99961027ee7b07f704d78b039"><span class="id" title="notation">=[</span></a> <a class="idref" href="Auto.html#c"><span class="id" title="variable">c</span></a> <a class="idref" href="Imp.html#d602dfe99961027ee7b07f704d78b039"><span class="id" title="notation">]=&gt;</span></a> <a class="idref" href="Auto.html#st2"><span class="id" title="variable">st2</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Auto.html#st1"><span class="id" title="variable">st1</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#1c39bf18749e5cc609e83c0a0ba5a372"><span class="id" title="notation">=</span></a> <a class="idref" href="Auto.html#st2"><span class="id" title="variable">st2</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">c</span> <span class="id" title="var">st</span> <span class="id" title="var">st1</span> <span class="id" title="var">st2</span> <span class="id" title="var">E1</span> <span class="id" title="var">E2</span>;<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">generalize</span> <span class="id" title="tactic">dependent</span> <span class="id" title="var">st2</span>;<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">E1</span>; <span class="id" title="tactic">intros</span> <span class="id" title="var">st2</span> <span class="id" title="var">E2</span>; <span class="id" title="var">inv</span> <span class="id" title="var">E2</span>.<br/>
+&nbsp;&nbsp;-  <span class="id" title="tactic">reflexivity</span>.<br/>
+&nbsp;&nbsp;-  <span class="id" title="tactic">reflexivity</span>.<br/>
+&nbsp;&nbsp;- <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">assert</span> (<span class="id" title="var">st'</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#1c39bf18749e5cc609e83c0a0ba5a372"><span class="id" title="notation">=</span></a> <span class="id" title="var">st'0</span>) <span class="id" title="keyword">as</span> <span class="id" title="var">EQ1</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;{  <span class="id" title="tactic">apply</span> <span class="id" title="var">IHE1_1</span>; <span class="id" title="tactic">apply</span> <span class="id" title="var">H1</span>. }<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">subst</span> <span class="id" title="var">st'0</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="var">IHE1_2</span>. <span class="id" title="tactic">assumption</span>.<br/>
+&nbsp;&nbsp;- <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="var">IHE1</span>. <span class="id" title="tactic">assumption</span>.<br/>
+&nbsp;&nbsp;- <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <span class="id" title="var">H</span> <span class="id" title="tactic">in</span> <span class="id" title="var">H5</span>. <span class="id" title="tactic">inversion</span> <span class="id" title="var">H5</span>.<br/>
+&nbsp;&nbsp;- <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <span class="id" title="var">H</span> <span class="id" title="tactic">in</span> <span class="id" title="var">H5</span>. <span class="id" title="tactic">inversion</span> <span class="id" title="var">H5</span>.<br/>
+&nbsp;&nbsp;- <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="var">IHE1</span>. <span class="id" title="tactic">assumption</span>.<br/>
+&nbsp;&nbsp;- <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">reflexivity</span>.<br/>
+&nbsp;&nbsp;- <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <span class="id" title="var">H</span> <span class="id" title="tactic">in</span> <span class="id" title="var">H2</span>. <span class="id" title="tactic">inversion</span> <span class="id" title="var">H2</span>.<br/>
+&nbsp;&nbsp;- <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <span class="id" title="var">H</span> <span class="id" title="tactic">in</span> <span class="id" title="var">H4</span>. <span class="id" title="tactic">inversion</span> <span class="id" title="var">H4</span>.<br/>
+&nbsp;&nbsp;- <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">assert</span> (<span class="id" title="var">st'</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#1c39bf18749e5cc609e83c0a0ba5a372"><span class="id" title="notation">=</span></a> <span class="id" title="var">st'0</span>) <span class="id" title="keyword">as</span> <span class="id" title="var">EQ1</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;{  <span class="id" title="tactic">apply</span> <span class="id" title="var">IHE1_1</span>; <span class="id" title="tactic">assumption</span>. }<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">subst</span> <span class="id" title="var">st'0</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="var">IHE1_2</span>. <span class="id" title="tactic">assumption</span>. <span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab396"></a><h1 class="section">The <span class="inlinecode"><span class="id" title="tactic">auto</span></span> Tactic</h1>
+
+<div class="paragraph"> </div>
+
+ Thus far, our proof scripts mostly apply relevant hypotheses or
+    lemmas by name, and one at a time. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Example</span> <a name="auto_example_1"><span class="id" title="definition">auto_example_1</span></a> : <span class="id" title="keyword">forall</span> (<span class="id" title="var">P</span> <span class="id" title="var">Q</span> <span class="id" title="var">R</span>: <span class="id" title="keyword">Prop</span>),<br/>
+&nbsp;&nbsp;<a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">(</span></a><a class="idref" href="Auto.html#P"><span class="id" title="variable">P</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="Auto.html#Q"><span class="id" title="variable">Q</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">)</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">(</span></a><a class="idref" href="Auto.html#Q"><span class="id" title="variable">Q</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="Auto.html#R"><span class="id" title="variable">R</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">)</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="Auto.html#P"><span class="id" title="variable">P</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="Auto.html#R"><span class="id" title="variable">R</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">P</span> <span class="id" title="var">Q</span> <span class="id" title="var">R</span> <span class="id" title="var">H1</span> <span class="id" title="var">H2</span> <span class="id" title="var">H3</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="var">H2</span>. <span class="id" title="tactic">apply</span> <span class="id" title="var">H1</span>. <span class="id" title="tactic">assumption</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+The <span class="inlinecode"><span class="id" title="tactic">auto</span></span> tactic frees us from this drudgery by <i>searching</i> for a
+    sequence of applications that will prove the goal: 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Example</span> <a name="auto_example_1'"><span class="id" title="definition">auto_example_1'</span></a> : <span class="id" title="keyword">forall</span> (<span class="id" title="var">P</span> <span class="id" title="var">Q</span> <span class="id" title="var">R</span>: <span class="id" title="keyword">Prop</span>),<br/>
+&nbsp;&nbsp;<a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">(</span></a><a class="idref" href="Auto.html#P"><span class="id" title="variable">P</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="Auto.html#Q"><span class="id" title="variable">Q</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">)</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">(</span></a><a class="idref" href="Auto.html#Q"><span class="id" title="variable">Q</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="Auto.html#R"><span class="id" title="variable">R</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">)</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="Auto.html#P"><span class="id" title="variable">P</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="Auto.html#R"><span class="id" title="variable">R</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">auto</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+The <span class="inlinecode"><span class="id" title="tactic">auto</span></span> tactic solves goals that are solvable by any combination of
+<ul class="doclist">
+<li> <span class="inlinecode"><span class="id" title="tactic">intros</span></span> and
+
+</li>
+<li> <span class="inlinecode"><span class="id" title="tactic">apply</span></span> (of hypotheses from the local context, by default). 
+</li>
+</ul>
+
+<div class="paragraph"> </div>
+
+ Using <span class="inlinecode"><span class="id" title="tactic">auto</span></span> is always "safe" in the sense that it will never fail
+    and will never change the proof state: either it completely solves
+    the current goal, or it does nothing. 
+<div class="paragraph"> </div>
+
+ Here is a more interesting example showing <span class="inlinecode"><span class="id" title="tactic">auto</span></span>'s power: 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Example</span> <a name="auto_example_2"><span class="id" title="definition">auto_example_2</span></a> : <span class="id" title="keyword">forall</span> <span class="id" title="var">P</span> <span class="id" title="var">Q</span> <span class="id" title="var">R</span> <span class="id" title="var">S</span> <span class="id" title="var">T</span> <span class="id" title="var">U</span> : <span class="id" title="keyword">Prop</span>,<br/>
+&nbsp;&nbsp;<a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">(</span></a><a class="idref" href="Auto.html#P"><span class="id" title="variable">P</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="Auto.html#Q"><span class="id" title="variable">Q</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">)</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a><br/>
+&nbsp;&nbsp;<a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">(</span></a><a class="idref" href="Auto.html#P"><span class="id" title="variable">P</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="Auto.html#R"><span class="id" title="variable">R</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">)</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a><br/>
+&nbsp;&nbsp;<a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">(</span></a><a class="idref" href="Auto.html#T"><span class="id" title="variable">T</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="Auto.html#R"><span class="id" title="variable">R</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">)</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a><br/>
+&nbsp;&nbsp;<a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">(</span></a><a class="idref" href="Auto.html#S"><span class="id" title="variable">S</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="Auto.html#T"><span class="id" title="variable">T</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="Auto.html#U"><span class="id" title="variable">U</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">)</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a><br/>
+&nbsp;&nbsp;<a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">((</span></a><a class="idref" href="Auto.html#P"><span class="id" title="variable">P</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a><a class="idref" href="Auto.html#Q"><span class="id" title="variable">Q</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">)</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">(</span></a><a class="idref" href="Auto.html#P"><span class="id" title="variable">P</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a><a class="idref" href="Auto.html#S"><span class="id" title="variable">S</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">))</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a><br/>
+&nbsp;&nbsp;<a class="idref" href="Auto.html#T"><span class="id" title="variable">T</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a><br/>
+&nbsp;&nbsp;<a class="idref" href="Auto.html#P"><span class="id" title="variable">P</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a><br/>
+&nbsp;&nbsp;<a class="idref" href="Auto.html#U"><span class="id" title="variable">U</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>. <span class="id" title="tactic">auto</span>. <span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Proof search could, in principle, take an arbitrarily long time,
+    so there are limits to how far <span class="inlinecode"><span class="id" title="tactic">auto</span></span> will search by default. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Example</span> <a name="auto_example_3"><span class="id" title="definition">auto_example_3</span></a> : <span class="id" title="keyword">forall</span> (<span class="id" title="var">P</span> <span class="id" title="var">Q</span> <span class="id" title="var">R</span> <span class="id" title="var">S</span> <span class="id" title="var">T</span> <span class="id" title="var">U</span>: <span class="id" title="keyword">Prop</span>),<br/>
+&nbsp;&nbsp;<a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">(</span></a><a class="idref" href="Auto.html#P"><span class="id" title="variable">P</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="Auto.html#Q"><span class="id" title="variable">Q</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">)</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a><br/>
+&nbsp;&nbsp;<a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">(</span></a><a class="idref" href="Auto.html#Q"><span class="id" title="variable">Q</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="Auto.html#R"><span class="id" title="variable">R</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">)</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a><br/>
+&nbsp;&nbsp;<a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">(</span></a><a class="idref" href="Auto.html#R"><span class="id" title="variable">R</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="Auto.html#S"><span class="id" title="variable">S</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">)</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a><br/>
+&nbsp;&nbsp;<a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">(</span></a><a class="idref" href="Auto.html#S"><span class="id" title="variable">S</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="Auto.html#T"><span class="id" title="variable">T</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">)</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a><br/>
+&nbsp;&nbsp;<a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">(</span></a><a class="idref" href="Auto.html#T"><span class="id" title="variable">T</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="Auto.html#U"><span class="id" title="variable">U</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">)</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a><br/>
+&nbsp;&nbsp;<a class="idref" href="Auto.html#P"><span class="id" title="variable">P</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a><br/>
+&nbsp;&nbsp;<a class="idref" href="Auto.html#U"><span class="id" title="variable">U</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">auto</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">auto</span> 6.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+When searching for potential proofs of the current goal,
+    <span class="inlinecode"><span class="id" title="tactic">auto</span></span> considers the hypotheses in the current context together
+    with a <i>hint database</i> of other lemmas and constructors.  Some
+    common lemmas about equality and logical operators are installed
+    in this hint database by default. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Example</span> <a name="auto_example_4"><span class="id" title="definition">auto_example_4</span></a> : <span class="id" title="keyword">forall</span> <span class="id" title="var">P</span> <span class="id" title="var">Q</span> <span class="id" title="var">R</span> : <span class="id" title="keyword">Prop</span>,<br/>
+&nbsp;&nbsp;<a class="idref" href="Auto.html#Q"><span class="id" title="variable">Q</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a><br/>
+&nbsp;&nbsp;<a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">(</span></a><a class="idref" href="Auto.html#Q"><span class="id" title="variable">Q</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="Auto.html#R"><span class="id" title="variable">R</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">)</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a><br/>
+&nbsp;&nbsp;<a class="idref" href="Auto.html#P"><span class="id" title="variable">P</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#7a45dffb109c3069e5c675be68643e60"><span class="id" title="notation">\/</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#7a45dffb109c3069e5c675be68643e60"><span class="id" title="notation">(</span></a><a class="idref" href="Auto.html#Q"><span class="id" title="variable">Q</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d82a7d96d3659d805ffe732283716822"><span class="id" title="notation">/\</span></a> <a class="idref" href="Auto.html#R"><span class="id" title="variable">R</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#7a45dffb109c3069e5c675be68643e60"><span class="id" title="notation">)</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>. <span class="id" title="tactic">auto</span>. <span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+We can extend the hint database just for the purposes of one
+    application of <span class="inlinecode"><span class="id" title="tactic">auto</span></span> by writing "<span class="inlinecode"><span class="id" title="tactic">auto</span></span> <span class="inlinecode"><span class="id" title="keyword">using</span></span> <span class="inlinecode">...</span>". 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a name="le_antisym"><span class="id" title="lemma">le_antisym</span></a> : <span class="id" title="keyword">forall</span> <span class="id" title="var">n</span> <span class="id" title="var">m</span>: <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Datatypes.html#nat"><span class="id" title="inductive">nat</span></a>, <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">(</span></a><a class="idref" href="Auto.html#n"><span class="id" title="variable">n</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Peano.html#9b077c369e19739ef880736ba34623ff"><span class="id" title="notation">&lt;=</span></a> <a class="idref" href="Auto.html#m"><span class="id" title="variable">m</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d82a7d96d3659d805ffe732283716822"><span class="id" title="notation">/\</span></a> <a class="idref" href="Auto.html#m"><span class="id" title="variable">m</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Peano.html#9b077c369e19739ef880736ba34623ff"><span class="id" title="notation">&lt;=</span></a> <a class="idref" href="Auto.html#n"><span class="id" title="variable">n</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">)</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="Auto.html#n"><span class="id" title="variable">n</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#1c39bf18749e5cc609e83c0a0ba5a372"><span class="id" title="notation">=</span></a> <a class="idref" href="Auto.html#m"><span class="id" title="variable">m</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>. <span class="id" title="tactic">intros</span>. <span class="id" title="tactic">omega</span>. <span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Example</span> <a name="auto_example_6"><span class="id" title="definition">auto_example_6</span></a> : <span class="id" title="keyword">forall</span> <span class="id" title="var">n</span> <span class="id" title="var">m</span> <span class="id" title="var">p</span> : <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Datatypes.html#nat"><span class="id" title="inductive">nat</span></a>,<br/>
+&nbsp;&nbsp;<a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">(</span></a><a class="idref" href="Auto.html#n"><span class="id" title="variable">n</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Peano.html#9b077c369e19739ef880736ba34623ff"><span class="id" title="notation">&lt;=</span></a> <a class="idref" href="Auto.html#p"><span class="id" title="variable">p</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">(</span></a><a class="idref" href="Auto.html#n"><span class="id" title="variable">n</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Peano.html#9b077c369e19739ef880736ba34623ff"><span class="id" title="notation">&lt;=</span></a> <a class="idref" href="Auto.html#m"><span class="id" title="variable">m</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d82a7d96d3659d805ffe732283716822"><span class="id" title="notation">/\</span></a> <a class="idref" href="Auto.html#m"><span class="id" title="variable">m</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Peano.html#9b077c369e19739ef880736ba34623ff"><span class="id" title="notation">&lt;=</span></a> <a class="idref" href="Auto.html#n"><span class="id" title="variable">n</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">))</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a><br/>
+&nbsp;&nbsp;<a class="idref" href="Auto.html#n"><span class="id" title="variable">n</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Peano.html#9b077c369e19739ef880736ba34623ff"><span class="id" title="notation">&lt;=</span></a> <a class="idref" href="Auto.html#p"><span class="id" title="variable">p</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a><br/>
+&nbsp;&nbsp;<a class="idref" href="Auto.html#n"><span class="id" title="variable">n</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#1c39bf18749e5cc609e83c0a0ba5a372"><span class="id" title="notation">=</span></a> <a class="idref" href="Auto.html#m"><span class="id" title="variable">m</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">auto</span> <span class="id" title="keyword">using</span> <a class="idref" href="Auto.html#le_antisym"><span class="id" title="lemma">le_antisym</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Of course, in any given development there will probably be
+    some specific constructors and lemmas that are used very often in
+    proofs.  We can add these to the global hint database by writing
+
+<div class="paragraph"> </div>
+
+      Hint Resolve T.
+
+<div class="paragraph"> </div>
+
+    at the top level, where <span class="inlinecode"><a class="idref" href="Logic.html#T"><span class="id" title="variable">T</span></a></span> is a top-level theorem or a
+    constructor of an inductively defined proposition (i.e., anything
+    whose type is an implication).  As a shorthand, we can write
+
+<div class="paragraph"> </div>
+
+      Hint Constructors c.
+
+<div class="paragraph"> </div>
+
+    to tell Coq to do a <span class="inlinecode"><span class="id" title="keyword">Hint</span></span> <span class="inlinecode"><span class="id" title="keyword">Resolve</span></span> for <i>all</i> of the constructors
+    from the inductive definition of <span class="inlinecode"><a class="idref" href="IndProp.html#c"><span class="id" title="definition">c</span></a></span>.
+
+<div class="paragraph"> </div>
+
+    It is also sometimes necessary to add
+
+<div class="paragraph"> </div>
+
+      Hint Unfold d.
+
+<div class="paragraph"> </div>
+
+    where <span class="inlinecode"><a class="idref" href="IndProp.html#d"><span class="id" title="definition">d</span></a></span> is a defined symbol, so that <span class="inlinecode"><span class="id" title="tactic">auto</span></span> knows to expand uses
+    of <span class="inlinecode"><a class="idref" href="IndProp.html#d"><span class="id" title="definition">d</span></a></span>, thus enabling further possibilities for applying lemmas that
+    it knows about. 
+<div class="paragraph"> </div>
+
+ It is also possible to define specialized hint databases that can
+    be activated only when needed.  See the Coq reference manual for
+    more. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Hint Resolve</span> <span class="id" title="var">le_antisym</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Example</span> <a name="auto_example_6'"><span class="id" title="definition">auto_example_6'</span></a> : <span class="id" title="keyword">forall</span> <span class="id" title="var">n</span> <span class="id" title="var">m</span> <span class="id" title="var">p</span> : <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Datatypes.html#nat"><span class="id" title="inductive">nat</span></a>,<br/>
+&nbsp;&nbsp;<a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">(</span></a><a class="idref" href="Auto.html#n"><span class="id" title="variable">n</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Peano.html#9b077c369e19739ef880736ba34623ff"><span class="id" title="notation">&lt;=</span></a> <a class="idref" href="Auto.html#p"><span class="id" title="variable">p</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">(</span></a><a class="idref" href="Auto.html#n"><span class="id" title="variable">n</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Peano.html#9b077c369e19739ef880736ba34623ff"><span class="id" title="notation">&lt;=</span></a> <a class="idref" href="Auto.html#m"><span class="id" title="variable">m</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d82a7d96d3659d805ffe732283716822"><span class="id" title="notation">/\</span></a> <a class="idref" href="Auto.html#m"><span class="id" title="variable">m</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Peano.html#9b077c369e19739ef880736ba34623ff"><span class="id" title="notation">&lt;=</span></a> <a class="idref" href="Auto.html#n"><span class="id" title="variable">n</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">))</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a><br/>
+&nbsp;&nbsp;<a class="idref" href="Auto.html#n"><span class="id" title="variable">n</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Peano.html#9b077c369e19739ef880736ba34623ff"><span class="id" title="notation">&lt;=</span></a> <a class="idref" href="Auto.html#p"><span class="id" title="variable">p</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a><br/>
+&nbsp;&nbsp;<a class="idref" href="Auto.html#n"><span class="id" title="variable">n</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#1c39bf18749e5cc609e83c0a0ba5a372"><span class="id" title="notation">=</span></a> <a class="idref" href="Auto.html#m"><span class="id" title="variable">m</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">auto</span>. <span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="is_fortytwo"><span class="id" title="definition">is_fortytwo</span></a> <span class="id" title="var">x</span> := (<a class="idref" href="Auto.html#x"><span class="id" title="variable">x</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#1c39bf18749e5cc609e83c0a0ba5a372"><span class="id" title="notation">=</span></a> 42).<br/>
+
+<br/>
+<span class="id" title="keyword">Example</span> <a name="auto_example_7"><span class="id" title="definition">auto_example_7</span></a>: <span class="id" title="keyword">forall</span> <span class="id" title="var">x</span>,<br/>
+&nbsp;&nbsp;<a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">(</span></a><a class="idref" href="Auto.html#x"><span class="id" title="variable">x</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Peano.html#9b077c369e19739ef880736ba34623ff"><span class="id" title="notation">&lt;=</span></a> 42 <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d82a7d96d3659d805ffe732283716822"><span class="id" title="notation">/\</span></a> 42 <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Peano.html#9b077c369e19739ef880736ba34623ff"><span class="id" title="notation">&lt;=</span></a> <a class="idref" href="Auto.html#x"><span class="id" title="variable">x</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">)</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="Auto.html#is_fortytwo"><span class="id" title="definition">is_fortytwo</span></a> <a class="idref" href="Auto.html#x"><span class="id" title="variable">x</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">auto</span>. <span class="id" title="keyword">Abort</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Hint Unfold</span> <a class="idref" href="Auto.html#is_fortytwo"><span class="id" title="definition">is_fortytwo</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Example</span> <a name="auto_example_7'"><span class="id" title="definition">auto_example_7'</span></a> : <span class="id" title="keyword">forall</span> <span class="id" title="var">x</span>,<br/>
+&nbsp;&nbsp;<a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">(</span></a><a class="idref" href="Auto.html#x"><span class="id" title="variable">x</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Peano.html#9b077c369e19739ef880736ba34623ff"><span class="id" title="notation">&lt;=</span></a> 42 <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d82a7d96d3659d805ffe732283716822"><span class="id" title="notation">/\</span></a> 42 <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Peano.html#9b077c369e19739ef880736ba34623ff"><span class="id" title="notation">&lt;=</span></a> <a class="idref" href="Auto.html#x"><span class="id" title="variable">x</span></a><a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">)</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="Auto.html#is_fortytwo"><span class="id" title="definition">is_fortytwo</span></a> <a class="idref" href="Auto.html#x"><span class="id" title="variable">x</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>. <span class="id" title="tactic">auto</span>. <span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Let's take a first pass over <span class="inlinecode"><a class="idref" href="Auto.html#Repeat.ceval_deterministic"><span class="id" title="lemma">ceval_deterministic</span></a></span> to simplify the
+    proof script. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Theorem</span> <a name="ceval_deterministic'"><span class="id" title="lemma">ceval_deterministic'</span></a>: <span class="id" title="keyword">forall</span> <span class="id" title="var">c</span> <span class="id" title="var">st</span> <span class="id" title="var">st1</span> <span class="id" title="var">st2</span>,<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Auto.html#st"><span class="id" title="variable">st</span></a> <a class="idref" href="Imp.html#d602dfe99961027ee7b07f704d78b039"><span class="id" title="notation">=[</span></a> <a class="idref" href="Auto.html#c"><span class="id" title="variable">c</span></a> <a class="idref" href="Imp.html#d602dfe99961027ee7b07f704d78b039"><span class="id" title="notation">]=&gt;</span></a> <a class="idref" href="Auto.html#st1"><span class="id" title="variable">st1</span></a>  <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Auto.html#st"><span class="id" title="variable">st</span></a> <a class="idref" href="Imp.html#d602dfe99961027ee7b07f704d78b039"><span class="id" title="notation">=[</span></a> <a class="idref" href="Auto.html#c"><span class="id" title="variable">c</span></a> <a class="idref" href="Imp.html#d602dfe99961027ee7b07f704d78b039"><span class="id" title="notation">]=&gt;</span></a> <a class="idref" href="Auto.html#st2"><span class="id" title="variable">st2</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Auto.html#st1"><span class="id" title="variable">st1</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#1c39bf18749e5cc609e83c0a0ba5a372"><span class="id" title="notation">=</span></a> <a class="idref" href="Auto.html#st2"><span class="id" title="variable">st2</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">c</span> <span class="id" title="var">st</span> <span class="id" title="var">st1</span> <span class="id" title="var">st2</span> <span class="id" title="var">E1</span> <span class="id" title="var">E2</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">generalize</span> <span class="id" title="tactic">dependent</span> <span class="id" title="var">st2</span>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">E1</span>; <span class="id" title="tactic">intros</span> <span class="id" title="var">st2</span> <span class="id" title="var">E2</span>; <span class="id" title="var">inv</span> <span class="id" title="var">E2</span>; <span class="id" title="tactic">auto</span>.<br/>
+&nbsp;&nbsp;- <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">assert</span> (<span class="id" title="var">st'</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#1c39bf18749e5cc609e83c0a0ba5a372"><span class="id" title="notation">=</span></a> <span class="id" title="var">st'0</span>) <span class="id" title="keyword">as</span> <span class="id" title="var">EQ1</span> <span class="id" title="tactic">by</span> <span class="id" title="tactic">auto</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">subst</span> <span class="id" title="var">st'0</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">auto</span>.<br/>
+&nbsp;&nbsp;- <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <span class="id" title="var">H</span> <span class="id" title="tactic">in</span> <span class="id" title="var">H5</span>. <span class="id" title="tactic">inversion</span> <span class="id" title="var">H5</span>.<br/>
+&nbsp;&nbsp;- <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <span class="id" title="var">H</span> <span class="id" title="tactic">in</span> <span class="id" title="var">H5</span>. <span class="id" title="tactic">inversion</span> <span class="id" title="var">H5</span>.<br/>
+&nbsp;&nbsp;- <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <span class="id" title="var">H</span> <span class="id" title="tactic">in</span> <span class="id" title="var">H2</span>. <span class="id" title="tactic">inversion</span> <span class="id" title="var">H2</span>.<br/>
+&nbsp;&nbsp;- <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <span class="id" title="var">H</span> <span class="id" title="tactic">in</span> <span class="id" title="var">H4</span>. <span class="id" title="tactic">inversion</span> <span class="id" title="var">H4</span>.<br/>
+&nbsp;&nbsp;- <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">assert</span> (<span class="id" title="var">st'</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#1c39bf18749e5cc609e83c0a0ba5a372"><span class="id" title="notation">=</span></a> <span class="id" title="var">st'0</span>) <span class="id" title="keyword">as</span> <span class="id" title="var">EQ1</span> <span class="id" title="tactic">by</span> <span class="id" title="tactic">auto</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">subst</span> <span class="id" title="var">st'0</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">auto</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+When we are using a particular tactic many times in a proof, we
+    can use a variant of the <span class="inlinecode"><span class="id" title="keyword">Proof</span></span> command to make that tactic into
+    a default within the proof.  Saying <span class="inlinecode"><span class="id" title="keyword">Proof</span></span> <span class="inlinecode"><span class="id" title="keyword">with</span></span> <span class="inlinecode"><a class="idref" href="ImpParser.html#t"><span class="id" title="variable">t</span></a></span> (where <span class="inlinecode"><a class="idref" href="ImpParser.html#t"><span class="id" title="variable">t</span></a></span> is
+    an arbitrary tactic) allows us to use <span class="inlinecode"><span class="id" title="var">t1</span>...</span> as a shorthand for
+    <span class="inlinecode"><span class="id" title="var">t1</span>;<a class="idref" href="ImpParser.html#t"><span class="id" title="variable">t</span></a></span> within the proof.  As an illustration, here is an alternate
+    version of the previous proof, using <span class="inlinecode"><span class="id" title="keyword">Proof</span></span> <span class="inlinecode"><span class="id" title="keyword">with</span></span> <span class="inlinecode"><span class="id" title="tactic">auto</span></span>. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Theorem</span> <a name="ceval_deterministic'_alt"><span class="id" title="lemma">ceval_deterministic'_alt</span></a>: <span class="id" title="keyword">forall</span> <span class="id" title="var">c</span> <span class="id" title="var">st</span> <span class="id" title="var">st1</span> <span class="id" title="var">st2</span>,<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Auto.html#st"><span class="id" title="variable">st</span></a> <a class="idref" href="Imp.html#d602dfe99961027ee7b07f704d78b039"><span class="id" title="notation">=[</span></a> <a class="idref" href="Auto.html#c"><span class="id" title="variable">c</span></a> <a class="idref" href="Imp.html#d602dfe99961027ee7b07f704d78b039"><span class="id" title="notation">]=&gt;</span></a> <a class="idref" href="Auto.html#st1"><span class="id" title="variable">st1</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Auto.html#st"><span class="id" title="variable">st</span></a> <a class="idref" href="Imp.html#d602dfe99961027ee7b07f704d78b039"><span class="id" title="notation">=[</span></a> <a class="idref" href="Auto.html#c"><span class="id" title="variable">c</span></a> <a class="idref" href="Imp.html#d602dfe99961027ee7b07f704d78b039"><span class="id" title="notation">]=&gt;</span></a> <a class="idref" href="Auto.html#st2"><span class="id" title="variable">st2</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Auto.html#st1"><span class="id" title="variable">st1</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#1c39bf18749e5cc609e83c0a0ba5a372"><span class="id" title="notation">=</span></a> <a class="idref" href="Auto.html#st2"><span class="id" title="variable">st2</span></a>.<br/>
+<span class="id" title="keyword">Proof</span> <span class="id" title="keyword">with</span> <span class="id" title="tactic">auto</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">c</span> <span class="id" title="var">st</span> <span class="id" title="var">st1</span> <span class="id" title="var">st2</span> <span class="id" title="var">E1</span> <span class="id" title="var">E2</span>;<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">generalize</span> <span class="id" title="tactic">dependent</span> <span class="id" title="var">st2</span>;<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">E1</span>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">st2</span> <span class="id" title="var">E2</span>; <span class="id" title="var">inv</span> <span class="id" title="var">E2</span>...<br/>
+&nbsp;&nbsp;- <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">assert</span> (<span class="id" title="var">st'</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#1c39bf18749e5cc609e83c0a0ba5a372"><span class="id" title="notation">=</span></a> <span class="id" title="var">st'0</span>) <span class="id" title="keyword">as</span> <span class="id" title="var">EQ1</span>...<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">subst</span> <span class="id" title="var">st'0</span>...<br/>
+&nbsp;&nbsp;- <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <span class="id" title="var">H</span> <span class="id" title="tactic">in</span> <span class="id" title="var">H5</span>. <span class="id" title="tactic">inversion</span> <span class="id" title="var">H5</span>.<br/>
+&nbsp;&nbsp;- <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <span class="id" title="var">H</span> <span class="id" title="tactic">in</span> <span class="id" title="var">H5</span>. <span class="id" title="tactic">inversion</span> <span class="id" title="var">H5</span>.<br/>
+&nbsp;&nbsp;- <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <span class="id" title="var">H</span> <span class="id" title="tactic">in</span> <span class="id" title="var">H2</span>. <span class="id" title="tactic">inversion</span> <span class="id" title="var">H2</span>.<br/>
+&nbsp;&nbsp;- <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <span class="id" title="var">H</span> <span class="id" title="tactic">in</span> <span class="id" title="var">H4</span>. <span class="id" title="tactic">inversion</span> <span class="id" title="var">H4</span>.<br/>
+&nbsp;&nbsp;- <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">assert</span> (<span class="id" title="var">st'</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#1c39bf18749e5cc609e83c0a0ba5a372"><span class="id" title="notation">=</span></a> <span class="id" title="var">st'0</span>) <span class="id" title="keyword">as</span> <span class="id" title="var">EQ1</span>...<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">subst</span> <span class="id" title="var">st'0</span>...<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab397"></a><h1 class="section">Searching For Hypotheses</h1>
+
+<div class="paragraph"> </div>
+
+ The proof has become simpler, but there is still an annoying
+    amount of repetition. Let's start by tackling the contradiction
+    cases. Each of them occurs in a situation where we have both
+
+<div class="paragraph"> </div>
+
+      H1: beval st b = false
+
+<div class="paragraph"> </div>
+
+    and
+
+<div class="paragraph"> </div>
+
+      H2: beval st b = true
+
+<div class="paragraph"> </div>
+
+    as hypotheses.  The contradiction is evident, but demonstrating it
+    is a little complicated: we have to locate the two hypotheses <span class="inlinecode"><span class="id" title="var">H1</span></span>
+    and <span class="inlinecode"><span class="id" title="var">H2</span></span> and do a <span class="inlinecode"><span class="id" title="tactic">rewrite</span></span> following by an <span class="inlinecode"><span class="id" title="tactic">inversion</span></span>.  We'd
+    like to automate this process.
+
+<div class="paragraph"> </div>
+
+    (In fact, Coq has a built-in tactic <span class="inlinecode"><span class="id" title="tactic">congruence</span></span> that will do the
+    job in this case.  But we'll ignore the existence of this tactic
+    for now, in order to demonstrate how to build forward search
+    tactics by hand.)
+
+<div class="paragraph"> </div>
+
+    As a first step, we can abstract out the piece of script in
+    question by writing a little function in Ltac. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">rwinv</span> <span class="id" title="var">H1</span> <span class="id" title="var">H2</span> := <span class="id" title="tactic">rewrite</span> <span class="id" title="var">H1</span> <span class="id" title="tactic">in</span> <span class="id" title="var">H2</span>; <span class="id" title="var">inv</span> <span class="id" title="var">H2</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Theorem</span> <a name="ceval_deterministic''"><span class="id" title="lemma">ceval_deterministic''</span></a>: <span class="id" title="keyword">forall</span> <span class="id" title="var">c</span> <span class="id" title="var">st</span> <span class="id" title="var">st1</span> <span class="id" title="var">st2</span>,<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Auto.html#st"><span class="id" title="variable">st</span></a> <a class="idref" href="Imp.html#d602dfe99961027ee7b07f704d78b039"><span class="id" title="notation">=[</span></a> <a class="idref" href="Auto.html#c"><span class="id" title="variable">c</span></a> <a class="idref" href="Imp.html#d602dfe99961027ee7b07f704d78b039"><span class="id" title="notation">]=&gt;</span></a> <a class="idref" href="Auto.html#st1"><span class="id" title="variable">st1</span></a>  <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Auto.html#st"><span class="id" title="variable">st</span></a> <a class="idref" href="Imp.html#d602dfe99961027ee7b07f704d78b039"><span class="id" title="notation">=[</span></a> <a class="idref" href="Auto.html#c"><span class="id" title="variable">c</span></a> <a class="idref" href="Imp.html#d602dfe99961027ee7b07f704d78b039"><span class="id" title="notation">]=&gt;</span></a> <a class="idref" href="Auto.html#st2"><span class="id" title="variable">st2</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Auto.html#st1"><span class="id" title="variable">st1</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#1c39bf18749e5cc609e83c0a0ba5a372"><span class="id" title="notation">=</span></a> <a class="idref" href="Auto.html#st2"><span class="id" title="variable">st2</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">c</span> <span class="id" title="var">st</span> <span class="id" title="var">st1</span> <span class="id" title="var">st2</span> <span class="id" title="var">E1</span> <span class="id" title="var">E2</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">generalize</span> <span class="id" title="tactic">dependent</span> <span class="id" title="var">st2</span>;<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">E1</span>; <span class="id" title="tactic">intros</span> <span class="id" title="var">st2</span> <span class="id" title="var">E2</span>; <span class="id" title="var">inv</span> <span class="id" title="var">E2</span>; <span class="id" title="tactic">auto</span>.<br/>
+&nbsp;&nbsp;- <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">assert</span> (<span class="id" title="var">st'</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#1c39bf18749e5cc609e83c0a0ba5a372"><span class="id" title="notation">=</span></a> <span class="id" title="var">st'0</span>) <span class="id" title="keyword">as</span> <span class="id" title="var">EQ1</span> <span class="id" title="tactic">by</span> <span class="id" title="tactic">auto</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">subst</span> <span class="id" title="var">st'0</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">auto</span>.<br/>
+&nbsp;&nbsp;- <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">rwinv</span> <span class="id" title="var">H</span> <span class="id" title="var">H5</span>.<br/>
+&nbsp;&nbsp;- <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">rwinv</span> <span class="id" title="var">H</span> <span class="id" title="var">H5</span>.<br/>
+&nbsp;&nbsp;- <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">rwinv</span> <span class="id" title="var">H</span> <span class="id" title="var">H2</span>.<br/>
+&nbsp;&nbsp;- <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">rwinv</span> <span class="id" title="var">H</span> <span class="id" title="var">H4</span>.<br/>
+&nbsp;&nbsp;- <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">assert</span> (<span class="id" title="var">st'</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#1c39bf18749e5cc609e83c0a0ba5a372"><span class="id" title="notation">=</span></a> <span class="id" title="var">st'0</span>) <span class="id" title="keyword">as</span> <span class="id" title="var">EQ1</span> <span class="id" title="tactic">by</span> <span class="id" title="tactic">auto</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">subst</span> <span class="id" title="var">st'0</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">auto</span>. <span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+That was a bit better, but we really want Coq to discover the
+    relevant hypotheses for us.  We can do this by using the <span class="inlinecode"><span class="id" title="keyword">match</span></span>
+    <span class="inlinecode"><span class="id" title="keyword">goal</span></span> facility of Ltac. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">find_rwinv</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="keyword">goal</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">H1</span>: ?<span class="id" title="var">E</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#1c39bf18749e5cc609e83c0a0ba5a372"><span class="id" title="notation">=</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Datatypes.html#true"><span class="id" title="constructor">true</span></a>,<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">H2</span>: ?<span class="id" title="var">E</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#1c39bf18749e5cc609e83c0a0ba5a372"><span class="id" title="notation">=</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Datatypes.html#false"><span class="id" title="constructor">false</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;|- <span class="id" title="var">_</span> =&gt; <span class="id" title="var">rwinv</span> <span class="id" title="var">H1</span> <span class="id" title="var">H2</span><br/>
+&nbsp;&nbsp;<span class="id" title="keyword">end</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+This <span class="inlinecode"><span class="id" title="keyword">match</span></span> <span class="inlinecode"><span class="id" title="keyword">goal</span></span> looks for two distinct hypotheses that
+    have the form of equalities, with the same arbitrary expression
+    <span class="inlinecode"><span class="id" title="var">E</span></span> on the left and with conflicting boolean values on the right.
+    If such hypotheses are found, it binds <span class="inlinecode"><span class="id" title="var">H1</span></span> and <span class="inlinecode"><span class="id" title="var">H2</span></span> to their
+    names and applies the <span class="inlinecode"><span class="id" title="var">rwinv</span></span> tactic to <span class="inlinecode"><span class="id" title="var">H1</span></span> and <span class="inlinecode"><span class="id" title="var">H2</span></span>.
+
+<div class="paragraph"> </div>
+
+    Adding this tactic to the ones that we invoke in each case of the
+    induction handles all of the contradictory cases. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Theorem</span> <a name="ceval_deterministic'''"><span class="id" title="lemma">ceval_deterministic'''</span></a>: <span class="id" title="keyword">forall</span> <span class="id" title="var">c</span> <span class="id" title="var">st</span> <span class="id" title="var">st1</span> <span class="id" title="var">st2</span>,<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Auto.html#st"><span class="id" title="variable">st</span></a> <a class="idref" href="Imp.html#d602dfe99961027ee7b07f704d78b039"><span class="id" title="notation">=[</span></a> <a class="idref" href="Auto.html#c"><span class="id" title="variable">c</span></a> <a class="idref" href="Imp.html#d602dfe99961027ee7b07f704d78b039"><span class="id" title="notation">]=&gt;</span></a> <a class="idref" href="Auto.html#st1"><span class="id" title="variable">st1</span></a>  <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Auto.html#st"><span class="id" title="variable">st</span></a> <a class="idref" href="Imp.html#d602dfe99961027ee7b07f704d78b039"><span class="id" title="notation">=[</span></a> <a class="idref" href="Auto.html#c"><span class="id" title="variable">c</span></a> <a class="idref" href="Imp.html#d602dfe99961027ee7b07f704d78b039"><span class="id" title="notation">]=&gt;</span></a> <a class="idref" href="Auto.html#st2"><span class="id" title="variable">st2</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Auto.html#st1"><span class="id" title="variable">st1</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#1c39bf18749e5cc609e83c0a0ba5a372"><span class="id" title="notation">=</span></a> <a class="idref" href="Auto.html#st2"><span class="id" title="variable">st2</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">c</span> <span class="id" title="var">st</span> <span class="id" title="var">st1</span> <span class="id" title="var">st2</span> <span class="id" title="var">E1</span> <span class="id" title="var">E2</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">generalize</span> <span class="id" title="tactic">dependent</span> <span class="id" title="var">st2</span>;<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">E1</span>; <span class="id" title="tactic">intros</span> <span class="id" title="var">st2</span> <span class="id" title="var">E2</span>; <span class="id" title="var">inv</span> <span class="id" title="var">E2</span>; <span class="id" title="tactic">try</span> <span class="id" title="var">find_rwinv</span>; <span class="id" title="tactic">auto</span>.<br/>
+&nbsp;&nbsp;- <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">assert</span> (<span class="id" title="var">st'</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#1c39bf18749e5cc609e83c0a0ba5a372"><span class="id" title="notation">=</span></a> <span class="id" title="var">st'0</span>) <span class="id" title="keyword">as</span> <span class="id" title="var">EQ1</span> <span class="id" title="tactic">by</span> <span class="id" title="tactic">auto</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">subst</span> <span class="id" title="var">st'0</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">auto</span>.<br/>
+&nbsp;&nbsp;- <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">assert</span> (<span class="id" title="var">st'</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#1c39bf18749e5cc609e83c0a0ba5a372"><span class="id" title="notation">=</span></a> <span class="id" title="var">st'0</span>) <span class="id" title="keyword">as</span> <span class="id" title="var">EQ1</span> <span class="id" title="tactic">by</span> <span class="id" title="tactic">auto</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">subst</span> <span class="id" title="var">st'0</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">auto</span>. <span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Let's see about the remaining cases. Each of them involves
+    applying a conditional hypothesis to extract an equality.
+    Currently we have phrased these as assertions, so that we have to
+    predict what the resulting equality will be (although we can then
+    use <span class="inlinecode"><span class="id" title="tactic">auto</span></span> to prove it).  An alternative is to pick the relevant
+    hypotheses to use and then <span class="inlinecode"><span class="id" title="tactic">rewrite</span></span> with them, as follows: 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Theorem</span> <a name="ceval_deterministic''''"><span class="id" title="lemma">ceval_deterministic''''</span></a>: <span class="id" title="keyword">forall</span> <span class="id" title="var">c</span> <span class="id" title="var">st</span> <span class="id" title="var">st1</span> <span class="id" title="var">st2</span>,<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Auto.html#st"><span class="id" title="variable">st</span></a> <a class="idref" href="Imp.html#d602dfe99961027ee7b07f704d78b039"><span class="id" title="notation">=[</span></a> <a class="idref" href="Auto.html#c"><span class="id" title="variable">c</span></a> <a class="idref" href="Imp.html#d602dfe99961027ee7b07f704d78b039"><span class="id" title="notation">]=&gt;</span></a> <a class="idref" href="Auto.html#st1"><span class="id" title="variable">st1</span></a>  <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Auto.html#st"><span class="id" title="variable">st</span></a> <a class="idref" href="Imp.html#d602dfe99961027ee7b07f704d78b039"><span class="id" title="notation">=[</span></a> <a class="idref" href="Auto.html#c"><span class="id" title="variable">c</span></a> <a class="idref" href="Imp.html#d602dfe99961027ee7b07f704d78b039"><span class="id" title="notation">]=&gt;</span></a> <a class="idref" href="Auto.html#st2"><span class="id" title="variable">st2</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Auto.html#st1"><span class="id" title="variable">st1</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#1c39bf18749e5cc609e83c0a0ba5a372"><span class="id" title="notation">=</span></a> <a class="idref" href="Auto.html#st2"><span class="id" title="variable">st2</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">c</span> <span class="id" title="var">st</span> <span class="id" title="var">st1</span> <span class="id" title="var">st2</span> <span class="id" title="var">E1</span> <span class="id" title="var">E2</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">generalize</span> <span class="id" title="tactic">dependent</span> <span class="id" title="var">st2</span>;<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">E1</span>; <span class="id" title="tactic">intros</span> <span class="id" title="var">st2</span> <span class="id" title="var">E2</span>; <span class="id" title="var">inv</span> <span class="id" title="var">E2</span>; <span class="id" title="tactic">try</span> <span class="id" title="var">find_rwinv</span>; <span class="id" title="tactic">auto</span>.<br/>
+&nbsp;&nbsp;- <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> (<span class="id" title="var">IHE1_1</span> <span class="id" title="var">st'0</span> <span class="id" title="var">H1</span>) <span class="id" title="tactic">in</span> *. <span class="id" title="tactic">auto</span>.<br/>
+&nbsp;&nbsp;- <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> (<span class="id" title="var">IHE1_1</span> <span class="id" title="var">st'0</span> <span class="id" title="var">H3</span>) <span class="id" title="tactic">in</span> *. <span class="id" title="tactic">auto</span>. <span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Now we can automate the task of finding the relevant hypotheses to
+    rewrite with. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">find_eqn</span> :=<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">match</span> <span class="id" title="keyword">goal</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">H1</span>: <span class="id" title="keyword">forall</span> <span class="id" title="var">x</span>, ?<span class="id" title="var">P</span> <a class="idref" href="Auto.html#x"><span class="id" title="variable">x</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a> ?<span class="id" title="var">L</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#1c39bf18749e5cc609e83c0a0ba5a372"><span class="id" title="notation">=</span></a> ?<span class="id" title="var">R</span>,<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">H2</span>: ?<span class="id" title="var">P</span> ?<span class="id" title="var">X</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;|- <span class="id" title="var">_</span> =&gt; <span class="id" title="tactic">rewrite</span> (<span class="id" title="var">H1</span> <span class="id" title="var">X</span> <span class="id" title="var">H2</span>) <span class="id" title="tactic">in</span> *<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">end</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+The pattern <span class="inlinecode"><span class="id" title="keyword">forall</span></span> <span class="inlinecode"><a class="idref" href="Basics.html#x"><span class="id" title="variable">x</span></a>,</span> <span class="inlinecode">?<a class="idref" href="Logic.html#P"><span class="id" title="variable">P</span></a></span> <span class="inlinecode"><a class="idref" href="Basics.html#x"><span class="id" title="variable">x</span></a></span> <span class="inlinecode">-&gt;</span> <span class="inlinecode">?<span class="id" title="var">L</span></span> <span class="inlinecode">=</span> <span class="inlinecode">?<a class="idref" href="IndProp.html#R.R"><span class="id" title="inductive">R</span></a></span> matches any hypothesis of
+    the form "for all <span class="inlinecode"><a class="idref" href="Basics.html#x"><span class="id" title="variable">x</span></a></span>, <i>some property of <span class="inlinecode"><a class="idref" href="Basics.html#x"><span class="id" title="variable">x</span></a></span></i> implies <i>some
+    equality</i>."  The property of <span class="inlinecode"><a class="idref" href="Basics.html#x"><span class="id" title="variable">x</span></a></span> is bound to the pattern variable
+    <span class="inlinecode"><a class="idref" href="Logic.html#P"><span class="id" title="variable">P</span></a></span>, and the left- and right-hand sides of the equality are bound
+    to <span class="inlinecode"><span class="id" title="var">L</span></span> and <span class="inlinecode"><a class="idref" href="IndProp.html#R.R"><span class="id" title="inductive">R</span></a></span>.  The name of this hypothesis is bound to <span class="inlinecode"><span class="id" title="var">H1</span></span>.
+    Then the pattern <span class="inlinecode">?<a class="idref" href="Logic.html#P"><span class="id" title="variable">P</span></a></span> <span class="inlinecode">?<a class="idref" href="Imp.html#X"><span class="id" title="definition">X</span></a></span> matches any hypothesis that provides
+    evidence that <span class="inlinecode"><a class="idref" href="Logic.html#P"><span class="id" title="variable">P</span></a></span> holds for some concrete <span class="inlinecode"><a class="idref" href="Imp.html#X"><span class="id" title="definition">X</span></a></span>.  If both patterns
+    succeed, we apply the <span class="inlinecode"><span class="id" title="tactic">rewrite</span></span> tactic (instantiating the
+    quantified <span class="inlinecode"><a class="idref" href="Basics.html#x"><span class="id" title="variable">x</span></a></span> with <span class="inlinecode"><a class="idref" href="Imp.html#X"><span class="id" title="definition">X</span></a></span> and providing <span class="inlinecode"><span class="id" title="var">H2</span></span> as the required
+    evidence for <span class="inlinecode"><a class="idref" href="Logic.html#P"><span class="id" title="variable">P</span></a></span> <span class="inlinecode"><a class="idref" href="Imp.html#X"><span class="id" title="definition">X</span></a></span>) in all hypotheses and the goal.
+
+<div class="paragraph"> </div>
+
+    One problem remains: in general, there may be several pairs of
+    hypotheses that have the right general form, and it seems tricky
+    to pick out the ones we actually need.  A key trick is to realize
+    that we can <i>try them all</i>!  Here's how this works:
+
+<div class="paragraph"> </div>
+
+<ul class="doclist">
+<li> each execution of <span class="inlinecode"><span class="id" title="keyword">match</span></span> <span class="inlinecode"><span class="id" title="keyword">goal</span></span> will keep trying to find a valid
+      pair of hypotheses until the tactic on the RHS of the match
+      succeeds; if there are no such pairs, it fails;
+
+</li>
+<li> <span class="inlinecode"><span class="id" title="tactic">rewrite</span></span> will fail given a trivial equation of the form <span class="inlinecode"><a class="idref" href="Imp.html#X"><span class="id" title="definition">X</span></a></span> <span class="inlinecode">=</span> <span class="inlinecode"><a class="idref" href="Imp.html#X"><span class="id" title="definition">X</span></a></span>;
+
+</li>
+<li> we can wrap the whole thing in a <span class="inlinecode"><span class="id" title="tactic">repeat</span></span>, which will keep doing
+      useful rewrites until only trivial ones are left. 
+</li>
+</ul>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Theorem</span> <a name="ceval_deterministic'''''"><span class="id" title="lemma">ceval_deterministic'''''</span></a>: <span class="id" title="keyword">forall</span> <span class="id" title="var">c</span> <span class="id" title="var">st</span> <span class="id" title="var">st1</span> <span class="id" title="var">st2</span>,<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Auto.html#st"><span class="id" title="variable">st</span></a> <a class="idref" href="Imp.html#d602dfe99961027ee7b07f704d78b039"><span class="id" title="notation">=[</span></a> <a class="idref" href="Auto.html#c"><span class="id" title="variable">c</span></a> <a class="idref" href="Imp.html#d602dfe99961027ee7b07f704d78b039"><span class="id" title="notation">]=&gt;</span></a> <a class="idref" href="Auto.html#st1"><span class="id" title="variable">st1</span></a>  <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Auto.html#st"><span class="id" title="variable">st</span></a> <a class="idref" href="Imp.html#d602dfe99961027ee7b07f704d78b039"><span class="id" title="notation">=[</span></a> <a class="idref" href="Auto.html#c"><span class="id" title="variable">c</span></a> <a class="idref" href="Imp.html#d602dfe99961027ee7b07f704d78b039"><span class="id" title="notation">]=&gt;</span></a> <a class="idref" href="Auto.html#st2"><span class="id" title="variable">st2</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Auto.html#st1"><span class="id" title="variable">st1</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#1c39bf18749e5cc609e83c0a0ba5a372"><span class="id" title="notation">=</span></a> <a class="idref" href="Auto.html#st2"><span class="id" title="variable">st2</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">c</span> <span class="id" title="var">st</span> <span class="id" title="var">st1</span> <span class="id" title="var">st2</span> <span class="id" title="var">E1</span> <span class="id" title="var">E2</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">generalize</span> <span class="id" title="tactic">dependent</span> <span class="id" title="var">st2</span>;<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">E1</span>; <span class="id" title="tactic">intros</span> <span class="id" title="var">st2</span> <span class="id" title="var">E2</span>; <span class="id" title="var">inv</span> <span class="id" title="var">E2</span>; <span class="id" title="tactic">try</span> <span class="id" title="var">find_rwinv</span>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">repeat</span> <span class="id" title="var">find_eqn</span>; <span class="id" title="tactic">auto</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+The big payoff in this approach is that our proof script should be
+    more robust in the face of modest changes to our language.  To
+    test this, let's try adding a <span class="inlinecode"><span class="id" title="var">REPEAT</span></span> command to the language. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Module</span> <a name="Repeat"><span class="id" title="module">Repeat</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Inductive</span> <a name="Repeat.com"><span class="id" title="inductive">com</span></a> : <span class="id" title="keyword">Type</span> :=<br/>
+&nbsp;&nbsp;| <a name="Repeat.CSkip"><span class="id" title="constructor">CSkip</span></a><br/>
+&nbsp;&nbsp;| <a name="Repeat.CAsgn"><span class="id" title="constructor">CAsgn</span></a> (<span class="id" title="var">x</span> : <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Strings.String.html#string"><span class="id" title="inductive">string</span></a>) (<span class="id" title="var">a</span> : <a class="idref" href="Imp.html#aexp"><span class="id" title="inductive">aexp</span></a>)<br/>
+&nbsp;&nbsp;| <a name="Repeat.CSeq"><span class="id" title="constructor">CSeq</span></a> (<span class="id" title="var">c1</span> <span class="id" title="var">c2</span> : <a class="idref" href="Auto.html#com"><span class="id" title="inductive">com</span></a>)<br/>
+&nbsp;&nbsp;| <a name="Repeat.CIf"><span class="id" title="constructor">CIf</span></a> (<span class="id" title="var">b</span> : <a class="idref" href="Imp.html#bexp"><span class="id" title="inductive">bexp</span></a>) (<span class="id" title="var">c1</span> <span class="id" title="var">c2</span> : <a class="idref" href="Auto.html#com"><span class="id" title="inductive">com</span></a>)<br/>
+&nbsp;&nbsp;| <a name="Repeat.CWhile"><span class="id" title="constructor">CWhile</span></a> (<span class="id" title="var">b</span> : <a class="idref" href="Imp.html#bexp"><span class="id" title="inductive">bexp</span></a>) (<span class="id" title="var">c</span> : <a class="idref" href="Auto.html#com"><span class="id" title="inductive">com</span></a>)<br/>
+&nbsp;&nbsp;| <a name="Repeat.CRepeat"><span class="id" title="constructor">CRepeat</span></a> (<span class="id" title="var">c</span> : <a class="idref" href="Auto.html#com"><span class="id" title="inductive">com</span></a>) (<span class="id" title="var">b</span> : <a class="idref" href="Imp.html#bexp"><span class="id" title="inductive">bexp</span></a>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<span class="inlinecode"><span class="id" title="var">REPEAT</span></span> behaves like <span class="inlinecode"><span class="id" title="var">WHILE</span></span>, except that the loop guard is
+    checked <i>after</i> each execution of the body, with the loop
+    repeating as long as the guard stays <i>false</i>.  Because of this,
+    the body will always execute at least once. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Notation</span> <a name="b074a7fb0450a5c4de4cbe24733c9ae3"><span class="id" title="notation">&quot;</span></a>'SKIP'" :=<br/>
+&nbsp;&nbsp;<a class="idref" href="Auto.html#Repeat.CSkip"><span class="id" title="constructor">CSkip</span></a>.<br/>
+<span class="id" title="keyword">Notation</span> <a name="c6314ad35397647cdd39c7134f850204"><span class="id" title="notation">&quot;</span></a>c1 ; c2" :=<br/>
+&nbsp;&nbsp;(<a class="idref" href="Auto.html#Repeat.CSeq"><span class="id" title="constructor">CSeq</span></a> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span>) (<span class="id" title="tactic">at</span> <span class="id" title="keyword">level</span> 80, <span class="id" title="tactic">right</span> <span class="id" title="keyword">associativity</span>).<br/>
+<span class="id" title="keyword">Notation</span> <a name="b76b22ba412c3649b8769083d19a684b"><span class="id" title="notation">&quot;</span></a>X '::=' a" :=<br/>
+&nbsp;&nbsp;(<a class="idref" href="Auto.html#Repeat.CAsgn"><span class="id" title="constructor">CAsgn</span></a> <span class="id" title="var">X</span> <span class="id" title="var">a</span>) (<span class="id" title="tactic">at</span> <span class="id" title="keyword">level</span> 60).<br/>
+<span class="id" title="keyword">Notation</span> <a name="33c08e03170789f8a551594ac170eb7e"><span class="id" title="notation">&quot;</span></a>'WHILE' b 'DO' c 'END'" :=<br/>
+&nbsp;&nbsp;(<a class="idref" href="Auto.html#Repeat.CWhile"><span class="id" title="constructor">CWhile</span></a> <span class="id" title="var">b</span> <span class="id" title="var">c</span>) (<span class="id" title="tactic">at</span> <span class="id" title="keyword">level</span> 80, <span class="id" title="tactic">right</span> <span class="id" title="keyword">associativity</span>).<br/>
+<span class="id" title="keyword">Notation</span> <a name="4cc21ee3c218a6afe1d6ab0f600f516d"><span class="id" title="notation">&quot;</span></a>'TEST' e1 'THEN' e2 'ELSE' e3 'FI'" :=<br/>
+&nbsp;&nbsp;(<a class="idref" href="Auto.html#Repeat.CIf"><span class="id" title="constructor">CIf</span></a> <span class="id" title="var">e1</span> <span class="id" title="var">e2</span> <span class="id" title="var">e3</span>) (<span class="id" title="tactic">at</span> <span class="id" title="keyword">level</span> 80, <span class="id" title="tactic">right</span> <span class="id" title="keyword">associativity</span>).<br/>
+<span class="id" title="keyword">Notation</span> <a name="3190c043cf4f49a9813a7544898a3492"><span class="id" title="notation">&quot;</span></a>'REPEAT' e1 'UNTIL' b2 'END'" :=<br/>
+&nbsp;&nbsp;(<a class="idref" href="Auto.html#Repeat.CRepeat"><span class="id" title="constructor">CRepeat</span></a> <span class="id" title="var">e1</span> <span class="id" title="var">b2</span>) (<span class="id" title="tactic">at</span> <span class="id" title="keyword">level</span> 80, <span class="id" title="tactic">right</span> <span class="id" title="keyword">associativity</span>).<br/>
+
+<br/>
+<span class="id" title="keyword">Inductive</span> <a name="Repeat.ceval"><span class="id" title="inductive">ceval</span></a> : <a class="idref" href="Imp.html#state"><span class="id" title="definition">state</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="Auto.html#Repeat.com"><span class="id" title="inductive">com</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="Imp.html#state"><span class="id" title="definition">state</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a> <span class="id" title="keyword">Prop</span> :=<br/>
+&nbsp;&nbsp;| <a name="Repeat.E_Skip"><span class="id" title="constructor">E_Skip</span></a> : <span class="id" title="keyword">forall</span> <span class="id" title="var">st</span>,<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Auto.html#ceval"><span class="id" title="inductive">ceval</span></a> <a class="idref" href="Auto.html#st"><span class="id" title="variable">st</span></a> <a class="idref" href="Auto.html#b074a7fb0450a5c4de4cbe24733c9ae3"><span class="id" title="notation">SKIP</span></a> <a class="idref" href="Auto.html#st"><span class="id" title="variable">st</span></a><br/>
+&nbsp;&nbsp;| <a name="Repeat.E_Ass"><span class="id" title="constructor">E_Ass</span></a>  : <span class="id" title="keyword">forall</span> <span class="id" title="var">st</span> <span class="id" title="var">a1</span> <span class="id" title="var">n</span> <span class="id" title="var">X</span>,<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Imp.html#aeval"><span class="id" title="definition">aeval</span></a> <a class="idref" href="Auto.html#st"><span class="id" title="variable">st</span></a> <a class="idref" href="Auto.html#a1"><span class="id" title="variable">a1</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#1c39bf18749e5cc609e83c0a0ba5a372"><span class="id" title="notation">=</span></a> <a class="idref" href="Auto.html#n"><span class="id" title="variable">n</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Auto.html#ceval"><span class="id" title="inductive">ceval</span></a> <a class="idref" href="Auto.html#st"><span class="id" title="variable">st</span></a> (<a class="idref" href="Auto.html#X"><span class="id" title="variable">X</span></a> <a class="idref" href="Auto.html#b76b22ba412c3649b8769083d19a684b"><span class="id" title="notation">::=</span></a> <a class="idref" href="Auto.html#a1"><span class="id" title="variable">a1</span></a>) (<a class="idref" href="Maps.html#t_update"><span class="id" title="definition">t_update</span></a> <a class="idref" href="Auto.html#st"><span class="id" title="variable">st</span></a> <a class="idref" href="Auto.html#X"><span class="id" title="variable">X</span></a> <a class="idref" href="Auto.html#n"><span class="id" title="variable">n</span></a>)<br/>
+&nbsp;&nbsp;| <a name="Repeat.E_Seq"><span class="id" title="constructor">E_Seq</span></a> : <span class="id" title="keyword">forall</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span> <span class="id" title="var">st</span> <span class="id" title="var">st'</span> <span class="id" title="var">st''</span>,<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Auto.html#ceval"><span class="id" title="inductive">ceval</span></a> <a class="idref" href="Auto.html#st"><span class="id" title="variable">st</span></a> <a class="idref" href="Auto.html#c1"><span class="id" title="variable">c1</span></a> <a class="idref" href="Auto.html#st'"><span class="id" title="variable">st'</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Auto.html#ceval"><span class="id" title="inductive">ceval</span></a> <a class="idref" href="Auto.html#st'"><span class="id" title="variable">st'</span></a> <a class="idref" href="Auto.html#c2"><span class="id" title="variable">c2</span></a> <a class="idref" href="Auto.html#st''"><span class="id" title="variable">st''</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Auto.html#ceval"><span class="id" title="inductive">ceval</span></a> <a class="idref" href="Auto.html#st"><span class="id" title="variable">st</span></a> (<a class="idref" href="Auto.html#c1"><span class="id" title="variable">c1</span></a> <a class="idref" href="Auto.html#c6314ad35397647cdd39c7134f850204"><span class="id" title="notation">;</span></a> <a class="idref" href="Auto.html#c2"><span class="id" title="variable">c2</span></a>) <a class="idref" href="Auto.html#st''"><span class="id" title="variable">st''</span></a><br/>
+&nbsp;&nbsp;| <a name="Repeat.E_IfTrue"><span class="id" title="constructor">E_IfTrue</span></a> : <span class="id" title="keyword">forall</span> <span class="id" title="var">st</span> <span class="id" title="var">st'</span> <span class="id" title="var">b1</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span>,<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Imp.html#beval"><span class="id" title="definition">beval</span></a> <a class="idref" href="Auto.html#st"><span class="id" title="variable">st</span></a> <a class="idref" href="Auto.html#b1"><span class="id" title="variable">b1</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#1c39bf18749e5cc609e83c0a0ba5a372"><span class="id" title="notation">=</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Datatypes.html#true"><span class="id" title="constructor">true</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Auto.html#ceval"><span class="id" title="inductive">ceval</span></a> <a class="idref" href="Auto.html#st"><span class="id" title="variable">st</span></a> <a class="idref" href="Auto.html#c1"><span class="id" title="variable">c1</span></a> <a class="idref" href="Auto.html#st'"><span class="id" title="variable">st'</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Auto.html#ceval"><span class="id" title="inductive">ceval</span></a> <a class="idref" href="Auto.html#st"><span class="id" title="variable">st</span></a> (<a class="idref" href="Auto.html#4cc21ee3c218a6afe1d6ab0f600f516d"><span class="id" title="notation">TEST</span></a> <a class="idref" href="Auto.html#b1"><span class="id" title="variable">b1</span></a> <a class="idref" href="Auto.html#4cc21ee3c218a6afe1d6ab0f600f516d"><span class="id" title="notation">THEN</span></a> <a class="idref" href="Auto.html#c1"><span class="id" title="variable">c1</span></a> <a class="idref" href="Auto.html#4cc21ee3c218a6afe1d6ab0f600f516d"><span class="id" title="notation">ELSE</span></a> <a class="idref" href="Auto.html#c2"><span class="id" title="variable">c2</span></a> <a class="idref" href="Auto.html#4cc21ee3c218a6afe1d6ab0f600f516d"><span class="id" title="notation">FI</span></a>) <a class="idref" href="Auto.html#st'"><span class="id" title="variable">st'</span></a><br/>
+&nbsp;&nbsp;| <a name="Repeat.E_IfFalse"><span class="id" title="constructor">E_IfFalse</span></a> : <span class="id" title="keyword">forall</span> <span class="id" title="var">st</span> <span class="id" title="var">st'</span> <span class="id" title="var">b1</span> <span class="id" title="var">c1</span> <span class="id" title="var">c2</span>,<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Imp.html#beval"><span class="id" title="definition">beval</span></a> <a class="idref" href="Auto.html#st"><span class="id" title="variable">st</span></a> <a class="idref" href="Auto.html#b1"><span class="id" title="variable">b1</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#1c39bf18749e5cc609e83c0a0ba5a372"><span class="id" title="notation">=</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Datatypes.html#false"><span class="id" title="constructor">false</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Auto.html#ceval"><span class="id" title="inductive">ceval</span></a> <a class="idref" href="Auto.html#st"><span class="id" title="variable">st</span></a> <a class="idref" href="Auto.html#c2"><span class="id" title="variable">c2</span></a> <a class="idref" href="Auto.html#st'"><span class="id" title="variable">st'</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Auto.html#ceval"><span class="id" title="inductive">ceval</span></a> <a class="idref" href="Auto.html#st"><span class="id" title="variable">st</span></a> (<a class="idref" href="Auto.html#4cc21ee3c218a6afe1d6ab0f600f516d"><span class="id" title="notation">TEST</span></a> <a class="idref" href="Auto.html#b1"><span class="id" title="variable">b1</span></a> <a class="idref" href="Auto.html#4cc21ee3c218a6afe1d6ab0f600f516d"><span class="id" title="notation">THEN</span></a> <a class="idref" href="Auto.html#c1"><span class="id" title="variable">c1</span></a> <a class="idref" href="Auto.html#4cc21ee3c218a6afe1d6ab0f600f516d"><span class="id" title="notation">ELSE</span></a> <a class="idref" href="Auto.html#c2"><span class="id" title="variable">c2</span></a> <a class="idref" href="Auto.html#4cc21ee3c218a6afe1d6ab0f600f516d"><span class="id" title="notation">FI</span></a>) <a class="idref" href="Auto.html#st'"><span class="id" title="variable">st'</span></a><br/>
+&nbsp;&nbsp;| <a name="Repeat.E_WhileFalse"><span class="id" title="constructor">E_WhileFalse</span></a> : <span class="id" title="keyword">forall</span> <span class="id" title="var">b1</span> <span class="id" title="var">st</span> <span class="id" title="var">c1</span>,<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Imp.html#beval"><span class="id" title="definition">beval</span></a> <a class="idref" href="Auto.html#st"><span class="id" title="variable">st</span></a> <a class="idref" href="Auto.html#b1"><span class="id" title="variable">b1</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#1c39bf18749e5cc609e83c0a0ba5a372"><span class="id" title="notation">=</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Datatypes.html#false"><span class="id" title="constructor">false</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Auto.html#ceval"><span class="id" title="inductive">ceval</span></a> <a class="idref" href="Auto.html#st"><span class="id" title="variable">st</span></a> (<a class="idref" href="Auto.html#33c08e03170789f8a551594ac170eb7e"><span class="id" title="notation">WHILE</span></a> <a class="idref" href="Auto.html#b1"><span class="id" title="variable">b1</span></a> <a class="idref" href="Auto.html#33c08e03170789f8a551594ac170eb7e"><span class="id" title="notation">DO</span></a> <a class="idref" href="Auto.html#c1"><span class="id" title="variable">c1</span></a> <a class="idref" href="Auto.html#33c08e03170789f8a551594ac170eb7e"><span class="id" title="notation">END</span></a>) <a class="idref" href="Auto.html#st"><span class="id" title="variable">st</span></a><br/>
+&nbsp;&nbsp;| <a name="Repeat.E_WhileTrue"><span class="id" title="constructor">E_WhileTrue</span></a> : <span class="id" title="keyword">forall</span> <span class="id" title="var">st</span> <span class="id" title="var">st'</span> <span class="id" title="var">st''</span> <span class="id" title="var">b1</span> <span class="id" title="var">c1</span>,<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Imp.html#beval"><span class="id" title="definition">beval</span></a> <a class="idref" href="Auto.html#st"><span class="id" title="variable">st</span></a> <a class="idref" href="Auto.html#b1"><span class="id" title="variable">b1</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#1c39bf18749e5cc609e83c0a0ba5a372"><span class="id" title="notation">=</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Datatypes.html#true"><span class="id" title="constructor">true</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Auto.html#ceval"><span class="id" title="inductive">ceval</span></a> <a class="idref" href="Auto.html#st"><span class="id" title="variable">st</span></a> <a class="idref" href="Auto.html#c1"><span class="id" title="variable">c1</span></a> <a class="idref" href="Auto.html#st'"><span class="id" title="variable">st'</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Auto.html#ceval"><span class="id" title="inductive">ceval</span></a> <a class="idref" href="Auto.html#st'"><span class="id" title="variable">st'</span></a> (<a class="idref" href="Auto.html#33c08e03170789f8a551594ac170eb7e"><span class="id" title="notation">WHILE</span></a> <a class="idref" href="Auto.html#b1"><span class="id" title="variable">b1</span></a> <a class="idref" href="Auto.html#33c08e03170789f8a551594ac170eb7e"><span class="id" title="notation">DO</span></a> <a class="idref" href="Auto.html#c1"><span class="id" title="variable">c1</span></a> <a class="idref" href="Auto.html#33c08e03170789f8a551594ac170eb7e"><span class="id" title="notation">END</span></a>) <a class="idref" href="Auto.html#st''"><span class="id" title="variable">st''</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Auto.html#ceval"><span class="id" title="inductive">ceval</span></a> <a class="idref" href="Auto.html#st"><span class="id" title="variable">st</span></a> (<a class="idref" href="Auto.html#33c08e03170789f8a551594ac170eb7e"><span class="id" title="notation">WHILE</span></a> <a class="idref" href="Auto.html#b1"><span class="id" title="variable">b1</span></a> <a class="idref" href="Auto.html#33c08e03170789f8a551594ac170eb7e"><span class="id" title="notation">DO</span></a> <a class="idref" href="Auto.html#c1"><span class="id" title="variable">c1</span></a> <a class="idref" href="Auto.html#33c08e03170789f8a551594ac170eb7e"><span class="id" title="notation">END</span></a>) <a class="idref" href="Auto.html#st''"><span class="id" title="variable">st''</span></a><br/>
+&nbsp;&nbsp;| <a name="Repeat.E_RepeatEnd"><span class="id" title="constructor">E_RepeatEnd</span></a> : <span class="id" title="keyword">forall</span> <span class="id" title="var">st</span> <span class="id" title="var">st'</span> <span class="id" title="var">b1</span> <span class="id" title="var">c1</span>,<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Auto.html#ceval"><span class="id" title="inductive">ceval</span></a> <a class="idref" href="Auto.html#st"><span class="id" title="variable">st</span></a> <a class="idref" href="Auto.html#c1"><span class="id" title="variable">c1</span></a> <a class="idref" href="Auto.html#st'"><span class="id" title="variable">st'</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Imp.html#beval"><span class="id" title="definition">beval</span></a> <a class="idref" href="Auto.html#st'"><span class="id" title="variable">st'</span></a> <a class="idref" href="Auto.html#b1"><span class="id" title="variable">b1</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#1c39bf18749e5cc609e83c0a0ba5a372"><span class="id" title="notation">=</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Datatypes.html#true"><span class="id" title="constructor">true</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Auto.html#ceval"><span class="id" title="inductive">ceval</span></a> <a class="idref" href="Auto.html#st"><span class="id" title="variable">st</span></a> (<a class="idref" href="Auto.html#Repeat.CRepeat"><span class="id" title="constructor">CRepeat</span></a> <a class="idref" href="Auto.html#c1"><span class="id" title="variable">c1</span></a> <a class="idref" href="Auto.html#b1"><span class="id" title="variable">b1</span></a>) <a class="idref" href="Auto.html#st'"><span class="id" title="variable">st'</span></a><br/>
+&nbsp;&nbsp;| <a name="Repeat.E_RepeatLoop"><span class="id" title="constructor">E_RepeatLoop</span></a> : <span class="id" title="keyword">forall</span> <span class="id" title="var">st</span> <span class="id" title="var">st'</span> <span class="id" title="var">st''</span> <span class="id" title="var">b1</span> <span class="id" title="var">c1</span>,<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Auto.html#ceval"><span class="id" title="inductive">ceval</span></a> <a class="idref" href="Auto.html#st"><span class="id" title="variable">st</span></a> <a class="idref" href="Auto.html#c1"><span class="id" title="variable">c1</span></a> <a class="idref" href="Auto.html#st'"><span class="id" title="variable">st'</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Imp.html#beval"><span class="id" title="definition">beval</span></a> <a class="idref" href="Auto.html#st'"><span class="id" title="variable">st'</span></a> <a class="idref" href="Auto.html#b1"><span class="id" title="variable">b1</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#1c39bf18749e5cc609e83c0a0ba5a372"><span class="id" title="notation">=</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Datatypes.html#false"><span class="id" title="constructor">false</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Auto.html#ceval"><span class="id" title="inductive">ceval</span></a> <a class="idref" href="Auto.html#st'"><span class="id" title="variable">st'</span></a> (<a class="idref" href="Auto.html#Repeat.CRepeat"><span class="id" title="constructor">CRepeat</span></a> <a class="idref" href="Auto.html#c1"><span class="id" title="variable">c1</span></a> <a class="idref" href="Auto.html#b1"><span class="id" title="variable">b1</span></a>) <a class="idref" href="Auto.html#st''"><span class="id" title="variable">st''</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Auto.html#ceval"><span class="id" title="inductive">ceval</span></a> <a class="idref" href="Auto.html#st"><span class="id" title="variable">st</span></a> (<a class="idref" href="Auto.html#Repeat.CRepeat"><span class="id" title="constructor">CRepeat</span></a> <a class="idref" href="Auto.html#c1"><span class="id" title="variable">c1</span></a> <a class="idref" href="Auto.html#b1"><span class="id" title="variable">b1</span></a>) <a class="idref" href="Auto.html#st''"><span class="id" title="variable">st''</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Notation</span> <a name="61645c5b35d00eec807d3731d50cd457"><span class="id" title="notation">&quot;</span></a>st '=[' c ']=&gt;' st'" := (<a class="idref" href="Auto.html#Repeat.ceval"><span class="id" title="inductive">ceval</span></a> <span class="id" title="var">st</span> <span class="id" title="var">c</span> <span class="id" title="var">st'</span>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">at</span> <span class="id" title="keyword">level</span> 40).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Our first attempt at the determinacy proof does not quite succeed:
+    the <span class="inlinecode"><a class="idref" href="Auto.html#Repeat.E_RepeatEnd"><span class="id" title="constructor">E_RepeatEnd</span></a></span> and <span class="inlinecode"><a class="idref" href="Auto.html#Repeat.E_RepeatLoop"><span class="id" title="constructor">E_RepeatLoop</span></a></span> cases are not handled by our
+    previous automation. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Theorem</span> <a name="Repeat.ceval_deterministic"><span class="id" title="lemma">ceval_deterministic</span></a>: <span class="id" title="keyword">forall</span> <span class="id" title="var">c</span> <span class="id" title="var">st</span> <span class="id" title="var">st1</span> <span class="id" title="var">st2</span>,<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Auto.html#st"><span class="id" title="variable">st</span></a> <a class="idref" href="Auto.html#61645c5b35d00eec807d3731d50cd457"><span class="id" title="notation">=[</span></a> <a class="idref" href="Auto.html#c"><span class="id" title="variable">c</span></a> <a class="idref" href="Auto.html#61645c5b35d00eec807d3731d50cd457"><span class="id" title="notation">]=&gt;</span></a> <a class="idref" href="Auto.html#st1"><span class="id" title="variable">st1</span></a>  <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Auto.html#st"><span class="id" title="variable">st</span></a> <a class="idref" href="Auto.html#61645c5b35d00eec807d3731d50cd457"><span class="id" title="notation">=[</span></a> <a class="idref" href="Auto.html#c"><span class="id" title="variable">c</span></a> <a class="idref" href="Auto.html#61645c5b35d00eec807d3731d50cd457"><span class="id" title="notation">]=&gt;</span></a> <a class="idref" href="Auto.html#st2"><span class="id" title="variable">st2</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Auto.html#st1"><span class="id" title="variable">st1</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#1c39bf18749e5cc609e83c0a0ba5a372"><span class="id" title="notation">=</span></a> <a class="idref" href="Auto.html#st2"><span class="id" title="variable">st2</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">c</span> <span class="id" title="var">st</span> <span class="id" title="var">st1</span> <span class="id" title="var">st2</span> <span class="id" title="var">E1</span> <span class="id" title="var">E2</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">generalize</span> <span class="id" title="tactic">dependent</span> <span class="id" title="var">st2</span>;<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">E1</span>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">st2</span> <span class="id" title="var">E2</span>; <span class="id" title="var">inv</span> <span class="id" title="var">E2</span>; <span class="id" title="tactic">try</span> <span class="id" title="var">find_rwinv</span>; <span class="id" title="tactic">repeat</span> <span class="id" title="var">find_eqn</span>; <span class="id" title="tactic">auto</span>.<br/>
+&nbsp;&nbsp;- <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">find_rwinv</span>.<br/>
+&nbsp;&nbsp;- <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">find_rwinv</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Fortunately, to fix this, we just have to swap the invocations of
+    <span class="inlinecode"><span class="id" title="var">find_eqn</span></span> and <span class="inlinecode"><span class="id" title="var">find_rwinv</span></span>. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Theorem</span> <a name="Repeat.ceval_deterministic'"><span class="id" title="lemma">ceval_deterministic'</span></a>: <span class="id" title="keyword">forall</span> <span class="id" title="var">c</span> <span class="id" title="var">st</span> <span class="id" title="var">st1</span> <span class="id" title="var">st2</span>,<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Auto.html#st"><span class="id" title="variable">st</span></a> <a class="idref" href="Auto.html#61645c5b35d00eec807d3731d50cd457"><span class="id" title="notation">=[</span></a> <a class="idref" href="Auto.html#c"><span class="id" title="variable">c</span></a> <a class="idref" href="Auto.html#61645c5b35d00eec807d3731d50cd457"><span class="id" title="notation">]=&gt;</span></a> <a class="idref" href="Auto.html#st1"><span class="id" title="variable">st1</span></a>  <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Auto.html#st"><span class="id" title="variable">st</span></a> <a class="idref" href="Auto.html#61645c5b35d00eec807d3731d50cd457"><span class="id" title="notation">=[</span></a> <a class="idref" href="Auto.html#c"><span class="id" title="variable">c</span></a> <a class="idref" href="Auto.html#61645c5b35d00eec807d3731d50cd457"><span class="id" title="notation">]=&gt;</span></a> <a class="idref" href="Auto.html#st2"><span class="id" title="variable">st2</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#d43e996736952df71ebeeae74d10a287"><span class="id" title="notation">-&gt;</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Auto.html#st1"><span class="id" title="variable">st1</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#1c39bf18749e5cc609e83c0a0ba5a372"><span class="id" title="notation">=</span></a> <a class="idref" href="Auto.html#st2"><span class="id" title="variable">st2</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">c</span> <span class="id" title="var">st</span> <span class="id" title="var">st1</span> <span class="id" title="var">st2</span> <span class="id" title="var">E1</span> <span class="id" title="var">E2</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">generalize</span> <span class="id" title="tactic">dependent</span> <span class="id" title="var">st2</span>;<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">E1</span>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">st2</span> <span class="id" title="var">E2</span>; <span class="id" title="var">inv</span> <span class="id" title="var">E2</span>; <span class="id" title="tactic">repeat</span> <span class="id" title="var">find_eqn</span>; <span class="id" title="tactic">try</span> <span class="id" title="var">find_rwinv</span>; <span class="id" title="tactic">auto</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="Auto.html#Repeat"><span class="id" title="module">Repeat</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+These examples just give a flavor of what "hyper-automation"
+    can achieve in Coq.  The details of <span class="inlinecode"><span class="id" title="keyword">match</span></span> <span class="inlinecode"><span class="id" title="keyword">goal</span></span> are a bit
+    tricky (and debugging scripts using it is, frankly, not very
+    pleasant).  But it is well worth adding at least simple uses to
+    your proofs, both to avoid tedium and to "future proof" them. 
+</div>
+<div class="code">
+
+<br/>
+</div>
+
+<div class="doc">
+<a name="lab398"></a><h2 class="section">The <span class="inlinecode"><span class="id" title="tactic">eapply</span></span> and <span class="inlinecode"><span class="id" title="tactic">eauto</span></span> variants</h2>
+
+<div class="paragraph"> </div>
+
+ To close the chapter, we'll introduce one more convenient feature
+    of Coq: its ability to delay instantiation of quantifiers.  To
+    motivate this feature, recall this example from the <span class="inlinecode"><span class="id" title="library">Imp</span></span>
+    chapter: 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Example</span> <a name="ceval_example1"><span class="id" title="definition">ceval_example1</span></a>:<br/>
+&nbsp;&nbsp;<a class="idref" href="Imp.html#empty_st"><span class="id" title="definition">empty_st</span></a> <a class="idref" href="Imp.html#d602dfe99961027ee7b07f704d78b039"><span class="id" title="notation">=[</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Imp.html#X"><span class="id" title="definition">X</span></a> <a class="idref" href="Imp.html#1415d381b898f10db78e714a0a964c11"><span class="id" title="notation">::=</span></a> 2<a class="idref" href="Imp.html#5604146224f04ce8ff933bc02eb29824"><span class="id" title="notation">;;</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Imp.html#f24c9b004b84dc97722b1c3c18c5829f"><span class="id" title="notation">TEST</span></a> <a class="idref" href="Imp.html#X"><span class="id" title="definition">X</span></a> <a class="idref" href="Imp.html#97f8f39c17bfb48ea37b674eccb827ca"><span class="id" title="notation">&lt;=</span></a> 1<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Imp.html#f24c9b004b84dc97722b1c3c18c5829f"><span class="id" title="notation">THEN</span></a> <a class="idref" href="Imp.html#Y"><span class="id" title="definition">Y</span></a> <a class="idref" href="Imp.html#1415d381b898f10db78e714a0a964c11"><span class="id" title="notation">::=</span></a> 3<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Imp.html#f24c9b004b84dc97722b1c3c18c5829f"><span class="id" title="notation">ELSE</span></a> <a class="idref" href="Imp.html#Z"><span class="id" title="definition">Z</span></a> <a class="idref" href="Imp.html#1415d381b898f10db78e714a0a964c11"><span class="id" title="notation">::=</span></a> 4<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Imp.html#f24c9b004b84dc97722b1c3c18c5829f"><span class="id" title="notation">FI</span></a><br/>
+&nbsp;&nbsp;<a class="idref" href="Imp.html#d602dfe99961027ee7b07f704d78b039"><span class="id" title="notation">]=&gt;</span></a> <a class="idref" href="Imp.html#d602dfe99961027ee7b07f704d78b039"><span class="id" title="notation">(</span></a><a class="idref" href="Imp.html#Z"><span class="id" title="definition">Z</span></a> <a class="idref" href="Maps.html#8d30c24efec4c4217ffea53676b55c2e"><span class="id" title="notation">!-&gt;</span></a> 4 <a class="idref" href="Maps.html#8d30c24efec4c4217ffea53676b55c2e"><span class="id" title="notation">;</span></a> <a class="idref" href="Imp.html#X"><span class="id" title="definition">X</span></a> <a class="idref" href="Imp.html#ba84b24570fb3a89fbbf23462f3909cd"><span class="id" title="notation">!-&gt;</span></a> 2<a class="idref" href="Imp.html#d602dfe99961027ee7b07f704d78b039"><span class="id" title="notation">)</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="Imp.html#E_Seq"><span class="id" title="constructor">E_Seq</span></a> <span class="id" title="keyword">with</span> (<a class="idref" href="Imp.html#X"><span class="id" title="definition">X</span></a> <a class="idref" href="Imp.html#ba84b24570fb3a89fbbf23462f3909cd"><span class="id" title="notation">!-&gt;</span></a> 2).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="Imp.html#E_Ass"><span class="id" title="constructor">E_Ass</span></a>. <span class="id" title="tactic">reflexivity</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="Imp.html#E_IfFalse"><span class="id" title="constructor">E_IfFalse</span></a>. <span class="id" title="tactic">reflexivity</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="Imp.html#E_Ass"><span class="id" title="constructor">E_Ass</span></a>. <span class="id" title="tactic">reflexivity</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+In the first step of the proof, we had to explicitly provide a
+    longish expression to help Coq instantiate a "hidden" argument to
+    the <span class="inlinecode"><a class="idref" href="Auto.html#Repeat.E_Seq"><span class="id" title="constructor">E_Seq</span></a></span> constructor.  This was needed because the definition
+    of <span class="inlinecode"><a class="idref" href="Auto.html#Repeat.E_Seq"><span class="id" title="constructor">E_Seq</span></a></span>...
+
+<div class="paragraph"> </div>
+
+          E_Seq : forall c1 c2 st st' st'',
+            st  =<span class="inlinecode"></span> <span class="inlinecode"><a class="idref" href="IndProp.html#R.c1"><span class="id" title="constructor">c1</span></a></span> <span class="inlinecode"></span>=&gt; st'  -&gt;
+            st' =<span class="inlinecode"></span> <span class="inlinecode"><a class="idref" href="IndProp.html#R.c2"><span class="id" title="constructor">c2</span></a></span> <span class="inlinecode"></span>=&gt; st'' -&gt;
+            st  =<span class="inlinecode"></span> <span class="inlinecode"><a class="idref" href="IndProp.html#R.c1"><span class="id" title="constructor">c1</span></a></span> <span class="inlinecode">;;</span> <span class="inlinecode"><a class="idref" href="IndProp.html#R.c2"><span class="id" title="constructor">c2</span></a></span> <span class="inlinecode"></span>=&gt; st''
+
+<div class="paragraph"> </div>
+
+   is quantified over a variable, <span class="inlinecode"><a class="idref" href="Imp.html#st'"><span class="id" title="variable">st'</span></a></span>, that does not appear in its
+   conclusion, so unifying its conclusion with the goal state doesn't
+   help Coq find a suitable value for this variable.  If we leave
+   out the <span class="inlinecode"><span class="id" title="keyword">with</span></span>, this step fails ("Error: Unable to find an
+   instance for the variable <span class="inlinecode"><a class="idref" href="Imp.html#st'"><span class="id" title="variable">st'</span></a></span>").
+
+<div class="paragraph"> </div>
+
+   What's silly about this error is that the appropriate value for <span class="inlinecode"><a class="idref" href="Imp.html#st'"><span class="id" title="variable">st'</span></a></span>
+   will actually become obvious in the very next step, where we apply
+   <span class="inlinecode"><a class="idref" href="Auto.html#Repeat.E_Ass"><span class="id" title="constructor">E_Ass</span></a></span>.  If Coq could just wait until we get to this step, there
+   would be no need to give the value explicitly.  This is exactly what
+   the <span class="inlinecode"><span class="id" title="tactic">eapply</span></span> tactic gives us: 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Example</span> <a name="ceval'_example1"><span class="id" title="definition">ceval'_example1</span></a>:<br/>
+&nbsp;&nbsp;<a class="idref" href="Imp.html#empty_st"><span class="id" title="definition">empty_st</span></a> <a class="idref" href="Imp.html#d602dfe99961027ee7b07f704d78b039"><span class="id" title="notation">=[</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Imp.html#X"><span class="id" title="definition">X</span></a> <a class="idref" href="Imp.html#1415d381b898f10db78e714a0a964c11"><span class="id" title="notation">::=</span></a> 2<a class="idref" href="Imp.html#5604146224f04ce8ff933bc02eb29824"><span class="id" title="notation">;;</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Imp.html#f24c9b004b84dc97722b1c3c18c5829f"><span class="id" title="notation">TEST</span></a> <a class="idref" href="Imp.html#X"><span class="id" title="definition">X</span></a> <a class="idref" href="Imp.html#97f8f39c17bfb48ea37b674eccb827ca"><span class="id" title="notation">&lt;=</span></a> 1<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Imp.html#f24c9b004b84dc97722b1c3c18c5829f"><span class="id" title="notation">THEN</span></a> <a class="idref" href="Imp.html#Y"><span class="id" title="definition">Y</span></a> <a class="idref" href="Imp.html#1415d381b898f10db78e714a0a964c11"><span class="id" title="notation">::=</span></a> 3<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Imp.html#f24c9b004b84dc97722b1c3c18c5829f"><span class="id" title="notation">ELSE</span></a> <a class="idref" href="Imp.html#Z"><span class="id" title="definition">Z</span></a> <a class="idref" href="Imp.html#1415d381b898f10db78e714a0a964c11"><span class="id" title="notation">::=</span></a> 4<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Imp.html#f24c9b004b84dc97722b1c3c18c5829f"><span class="id" title="notation">FI</span></a><br/>
+&nbsp;&nbsp;<a class="idref" href="Imp.html#d602dfe99961027ee7b07f704d78b039"><span class="id" title="notation">]=&gt;</span></a> <a class="idref" href="Imp.html#d602dfe99961027ee7b07f704d78b039"><span class="id" title="notation">(</span></a><a class="idref" href="Imp.html#Z"><span class="id" title="definition">Z</span></a> <a class="idref" href="Maps.html#8d30c24efec4c4217ffea53676b55c2e"><span class="id" title="notation">!-&gt;</span></a> 4 <a class="idref" href="Maps.html#8d30c24efec4c4217ffea53676b55c2e"><span class="id" title="notation">;</span></a> <a class="idref" href="Imp.html#X"><span class="id" title="definition">X</span></a> <a class="idref" href="Imp.html#ba84b24570fb3a89fbbf23462f3909cd"><span class="id" title="notation">!-&gt;</span></a> 2<a class="idref" href="Imp.html#d602dfe99961027ee7b07f704d78b039"><span class="id" title="notation">)</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">eapply</span> <a class="idref" href="Imp.html#E_Seq"><span class="id" title="constructor">E_Seq</span></a>. &nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="Imp.html#E_Ass"><span class="id" title="constructor">E_Ass</span></a>. &nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">reflexivity</span>. &nbsp;&nbsp;-  <span class="id" title="tactic">apply</span> <a class="idref" href="Imp.html#E_IfFalse"><span class="id" title="constructor">E_IfFalse</span></a>. <span class="id" title="tactic">reflexivity</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="Imp.html#E_Ass"><span class="id" title="constructor">E_Ass</span></a>. <span class="id" title="tactic">reflexivity</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+The <span class="inlinecode"><span class="id" title="tactic">eapply</span></span> <span class="inlinecode"><a class="idref" href="ProofObjects.html#H"><span class="id" title="variable">H</span></a></span> tactic behaves just like <span class="inlinecode"><span class="id" title="tactic">apply</span></span> <span class="inlinecode"><a class="idref" href="ProofObjects.html#H"><span class="id" title="variable">H</span></a></span> except
+    that, after it finishes unifying the goal state with the
+    conclusion of <span class="inlinecode"><a class="idref" href="ProofObjects.html#H"><span class="id" title="variable">H</span></a></span>, it does not bother to check whether all the
+    variables that were introduced in the process have been given
+    concrete values during unification.
+
+<div class="paragraph"> </div>
+
+    If you step through the proof above, you'll see that the goal
+    state at position <span class="inlinecode">1</span> mentions the <i>existential variable</i> <span class="inlinecode">?<a class="idref" href="Imp.html#st'"><span class="id" title="variable">st'</span></a></span>
+    in both of the generated subgoals.  The next step (which gets us
+    to position <span class="inlinecode">2</span>) replaces <span class="inlinecode">?<a class="idref" href="Imp.html#st'"><span class="id" title="variable">st'</span></a></span> with a concrete value.  This new
+    value contains a new existential variable <span class="inlinecode">?<a class="idref" href="Basics.html#n"><span class="id" title="variable">n</span></a></span>, which is
+    instantiated in its turn by the following <span class="inlinecode"><span class="id" title="tactic">reflexivity</span></span> step,
+    position <span class="inlinecode">3</span>.  When we start working on the second
+    subgoal (position <span class="inlinecode">4</span>), we observe that the occurrence of <span class="inlinecode">?<a class="idref" href="Imp.html#st'"><span class="id" title="variable">st'</span></a></span>
+    in this subgoal has been replaced by the value that it was given
+    during the first subgoal. 
+<div class="paragraph"> </div>
+
+ Several of the tactics that we've seen so far, including <span class="inlinecode"><span class="id" title="tactic">exists</span></span>,
+    <span class="inlinecode"><span class="id" title="tactic">constructor</span></span>, and <span class="inlinecode"><span class="id" title="tactic">auto</span></span>, have similar variants.  For example,
+    here's a proof using <span class="inlinecode"><span class="id" title="tactic">eauto</span></span>: 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Hint Constructors</span> <a class="idref" href="Auto.html#ceval"><span class="id" title="inductive">ceval</span></a>.<br/>
+<span class="id" title="keyword">Hint Transparent</span> <a class="idref" href="Imp.html#state"><span class="id" title="definition">state</span></a>.<br/>
+<span class="id" title="keyword">Hint Transparent</span> <a class="idref" href="Maps.html#total_map"><span class="id" title="definition">total_map</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a name="st12"><span class="id" title="definition">st12</span></a> := (<a class="idref" href="Imp.html#Y"><span class="id" title="definition">Y</span></a> <a class="idref" href="Maps.html#8d30c24efec4c4217ffea53676b55c2e"><span class="id" title="notation">!-&gt;</span></a> 2 <a class="idref" href="Maps.html#8d30c24efec4c4217ffea53676b55c2e"><span class="id" title="notation">;</span></a> <a class="idref" href="Imp.html#X"><span class="id" title="definition">X</span></a> <a class="idref" href="Imp.html#ba84b24570fb3a89fbbf23462f3909cd"><span class="id" title="notation">!-&gt;</span></a> 1).<br/>
+<span class="id" title="keyword">Definition</span> <a name="st21"><span class="id" title="definition">st21</span></a> := (<a class="idref" href="Imp.html#Y"><span class="id" title="definition">Y</span></a> <a class="idref" href="Maps.html#8d30c24efec4c4217ffea53676b55c2e"><span class="id" title="notation">!-&gt;</span></a> 1 <a class="idref" href="Maps.html#8d30c24efec4c4217ffea53676b55c2e"><span class="id" title="notation">;</span></a> <a class="idref" href="Imp.html#X"><span class="id" title="definition">X</span></a> <a class="idref" href="Imp.html#ba84b24570fb3a89fbbf23462f3909cd"><span class="id" title="notation">!-&gt;</span></a> 2).<br/>
+
+<br/>
+<span class="id" title="keyword">Example</span> <a name="eauto_example"><span class="id" title="definition">eauto_example</span></a> : <a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#84eb6d2849dbf3581b1c0c05add5f2d8"><span class="id" title="notation">exists</span></a> <span class="id" title="var">s'</span><a class="idref" href="http://coq.inria.fr/distrib/V8.8.2/stdlib//Coq.Init.Logic.html#84eb6d2849dbf3581b1c0c05add5f2d8"><span class="id" title="notation">,</span></a><br/>
+&nbsp;&nbsp;<a class="idref" href="Auto.html#st21"><span class="id" title="definition">st21</span></a> <a class="idref" href="Imp.html#d602dfe99961027ee7b07f704d78b039"><span class="id" title="notation">=[</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Imp.html#f24c9b004b84dc97722b1c3c18c5829f"><span class="id" title="notation">TEST</span></a> <a class="idref" href="Imp.html#X"><span class="id" title="definition">X</span></a> <a class="idref" href="Imp.html#97f8f39c17bfb48ea37b674eccb827ca"><span class="id" title="notation">&lt;=</span></a> <a class="idref" href="Imp.html#Y"><span class="id" title="definition">Y</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Imp.html#f24c9b004b84dc97722b1c3c18c5829f"><span class="id" title="notation">THEN</span></a> <a class="idref" href="Imp.html#Z"><span class="id" title="definition">Z</span></a> <a class="idref" href="Imp.html#1415d381b898f10db78e714a0a964c11"><span class="id" title="notation">::=</span></a> <a class="idref" href="Imp.html#Y"><span class="id" title="definition">Y</span></a> <a class="idref" href="Imp.html#bec100dd937ffc06b7e2521070b6294c"><span class="id" title="notation">-</span></a> <a class="idref" href="Imp.html#X"><span class="id" title="definition">X</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Imp.html#f24c9b004b84dc97722b1c3c18c5829f"><span class="id" title="notation">ELSE</span></a> <a class="idref" href="Imp.html#Y"><span class="id" title="definition">Y</span></a> <a class="idref" href="Imp.html#1415d381b898f10db78e714a0a964c11"><span class="id" title="notation">::=</span></a> <a class="idref" href="Imp.html#X"><span class="id" title="definition">X</span></a> <a class="idref" href="Imp.html#040a5752226a8185c7d6fc9125b7a4ea"><span class="id" title="notation">+</span></a> <a class="idref" href="Imp.html#Z"><span class="id" title="definition">Z</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="Imp.html#f24c9b004b84dc97722b1c3c18c5829f"><span class="id" title="notation">FI</span></a><br/>
+&nbsp;&nbsp;<a class="idref" href="Imp.html#d602dfe99961027ee7b07f704d78b039"><span class="id" title="notation">]=&gt;</span></a> <a class="idref" href="Auto.html#s'"><span class="id" title="variable">s'</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>. <span class="id" title="tactic">eauto</span>. <span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+The <span class="inlinecode"><span class="id" title="tactic">eauto</span></span> tactic works just like <span class="inlinecode"><span class="id" title="tactic">auto</span></span>, except that it uses
+    <span class="inlinecode"><span class="id" title="tactic">eapply</span></span> instead of <span class="inlinecode"><span class="id" title="tactic">apply</span></span>.
+
+<div class="paragraph"> </div>
+
+    Pro tip: One might think that, since <span class="inlinecode"><span class="id" title="tactic">eapply</span></span> and <span class="inlinecode"><span class="id" title="tactic">eauto</span></span> are more
+    powerful than <span class="inlinecode"><span class="id" title="tactic">apply</span></span> and <span class="inlinecode"><span class="id" title="tactic">auto</span></span>, it would be a good idea to use
+    them all the time.  Unfortunately, they are also significantly
+    slower -- especially <span class="inlinecode"><span class="id" title="tactic">eauto</span></span>.  Coq experts tend to use <span class="inlinecode"><span class="id" title="tactic">apply</span></span> and
+    <span class="inlinecode"><span class="id" title="tactic">auto</span></span> most of the time, only switching to the <span class="inlinecode"><a class="idref" href="Poly.html#MumbleGrumble.e"><span class="id" title="constructor">e</span></a></span> variants when
+    the ordinary variants don't do the job. 
+</div>
+<div class="code">
+
+<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">表紙</a><hr/>This page has been generated by <a href="http://coq.inria.fr/">coqdoc</a><hr/>
+<a href="https://github.com/sfja/sfja">ソフトウェアの基礎 日本語化プロジェクト</a>
+</div>
+
+</div>
+
+</body>
+</html>
