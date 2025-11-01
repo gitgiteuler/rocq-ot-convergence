@@ -7,27 +7,17 @@ From OTRocq Require Import OtDef.
 
 Check (1 ::2:: 3 :: []).
 
-Class Eq A :=
-  {
-    eqb : A -> A -> bool
-  }.
+Class Eq A := {eqb : A -> A -> bool}.
 
 Notation "x =? y" := (eqb x y).
 
-Instance eqNat : Eq nat :=
- {
-  eqb := Nat.eqb
- }.
+Instance eqNat : Eq nat := {eqb := Nat.eqb}.
 
-Instance eqBool : Eq bool :=
- {
-  eqb := Bool.eqb
- }.
+Instance eqBool : Eq bool := {eqb := Bool.eqb}.
 
-(*Context {A: Type} `{Eq A}.*)
-
-Compute eqb 5 10. 
-Compute eqb true false.
+Compute (eqb 1 1).
+Compute (eqb 1 2).
+Compute (eqb true false). 
 
 (* 任意の型Aに対して関数Ins を定義*)
 Fixpoint insert [A : Type] (p : nat) (x : A) (l : list A) : option (list A) :=
@@ -78,7 +68,6 @@ Definition interp_op [A : Type] `{Eq A} (op : Op A) (l : list A) : option (list 
   | OpDel p x => delete p x l
   end.
 
-Check interp_op.
 About interp_op.
 
 Arguments interp_op {A} {H} op l.
@@ -89,6 +78,8 @@ Definition inv_op [A : Type] `{Eq A} (op : Op A) : Op A :=
   | OpIns p x  => OpDel p x
   | OpDel p x => OpIns p x
   end.
+
+Compute inv_op (OpIns 1 2).
 
 Definition it_sc {A : Type} `{Eq A} (op1 op2 : Op A) (f : bool) : list(Op A) :=
   (* f=true の場合はクライアント優先、f=false の場合はサーバ優先 *)
@@ -128,13 +119,34 @@ Proof.
   unfold it_sc.
   unfold inv_op.
   destruct f.
+  (* f=true*の時 *)
     simpl.
+    rewrite <- H1.
+    unfold interp_op.
+    unfold Basics.flip.
+    unfold Commons.bind.
+    destruct op2.
+      (* op2 = insertの時 *)
+      destruct op1.
+        (* op1 = insertの時 *)
+        destruct (delete n0 a0 m1).
+          (* delete n0 a0 m1について場合分け *)
+          assert (H_eqml : m=l).
+          admit. 
+          rewrite H_eqml.
+          reflexivity.
+          
+        (* op1 = deleteの時 *)
+      (* op2 = deleteの時 *)
+        (* op1 = insertの時 *)
+        
+        (* op1 = deleteの時 *)
 Admitted.
 
 Instance OTBaseListSC {A : Type} `{Eq A} : OTBase (list A) (Op A) :=
 {
-  interp := @interp_op A _;
-  it := @it_sc A _;
+  interp := interp_op;
+  it := it_sc;
   it_c1 := fun op1 op2 f m m1 m2 =>
           ot_convergence_property_c1 A op1 op2 f m m1 m2;
 }.
