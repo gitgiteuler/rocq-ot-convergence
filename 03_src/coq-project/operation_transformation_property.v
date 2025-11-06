@@ -7,13 +7,27 @@ From OTRocq Require Import OtDef.
 
 Check (1 ::2:: 3 :: []).
 
-Class Eq A := {eqb : A -> A -> bool}.
+Class Eq A := {
+  eqb : A -> A -> bool;
+  eqb_refl : forall (x : A), eqb x x = true;
+}.
 
 Notation "x =? y" := (eqb x y).
 
-Instance eqNat : Eq nat := {eqb := Nat.eqb}.
+Instance eqNat : Eq nat := 
+{
+  eqb := Nat.eqb;
+  eqb_refl := Nat.eqb_refl;
+}.
 
-Instance eqBool : Eq bool := {eqb := Bool.eqb}.
+Instance eqBool : Eq bool := 
+{
+  eqb := Bool.eqb;
+  eqb_refl := fun x => match x with
+                       | true => eq_refl
+                       | false => eq_refl
+                       end
+}.
 
 Compute (eqb 1 1).
 Compute (eqb 1 2).
@@ -95,15 +109,56 @@ Compute Nat.ltb 1 2. (* 1 < 2 と言う命題が”真” *)
 Compute S 0.
 Compute Nat.eqb (S 0) 1.
 
-(* 全ての操作をリストに適用する関数 *)
-Fixpoint exec_all_op [A : Type] `{Eq A} (ops : list(Op A)) (l : list A): option (list A) :=
-  match ops with
-   | [] => Some l
-   | op :: t => match interp_op op l with
-                        | Some l' =>  exec_all_op t l'
-                        | None => None
-                        end
-  end.
+(* TODO:合流性c1の証明に必要な補題ip1の証明 *)
+Lemma ot_inverse_property_ip1 (A : Type) `{Eq A} :
+  forall op m mr, interp_op op m = Some mr -> interp_op (inv_op op) mr = Some m.
+Proof.
+  intros op m mr H_op.
+  destruct op.
+    (* op = OpIns n aの場合 *)
+    unfold inv_op.
+    unfold interp_op.
+    induction n as [| n' IHn'].
+    (* n = 0 の場合*)
+      simpl in H_op.
+      injection H_op as H_eq.
+      subst mr.
+      simpl.
+      destruct (a =? a) eqn:Heq.
+      (* a = a *)  
+        reflexivity.
+      (* a != a *)
+        exfalso.
+        assert (H_refl : a =? a = true) by apply eqb_refl.  
+        rewrite Heq in H_refl.
+        discriminate H_refl.
+    (* n = S n' の場合*)
+      destruct m as [| h t].
+      (* m = [] *)
+        discriminate H_op.
+      (* m = h :: t *)
+        destruct mr as [| h' t'].
+        (* mr が空リストの場合 *)
+          simpl in H_op.
+          destruct (insert n' a t).
+          inversion H_op.
+          (*discriminate H_op.*)
+        (* mr = h' :: t' の場合 *)
+          simpl in H_op.
+          destruct (insert n' a t).
+          discriminate H_op.
+          discriminate H_op.
+          (* Some l' *)
+          simpl in H_op.
+          destruct (insert n' a t).
+          injection H_op as Hh' Ht'.
+          subst.
+          simpl.
+          (* 証明で行き詰まっている箇所 *)
+
+    (* op = OpDel n aの場合 *)
+
+Instance otInvProperty {A : Type} `{Eq A} : 
 
 Lemma ot_convergence_property_c1 (A : Type) `{Eq A} :
   forall (op1 op2 : Op A) (f : bool) m (m1 m2 : list A),
@@ -120,27 +175,15 @@ Proof.
   unfold inv_op.
   destruct f.
   (* f=true*の時 *)
-    simpl.
     rewrite <- H1.
-    unfold interp_op.
+    simpl.
     unfold Basics.flip.
     unfold Commons.bind.
-    destruct op2.
-      (* op2 = insertの時 *)
-      destruct op1.
-        (* op1 = insertの時 *)
-        destruct (delete n0 a0 m1).
-          (* delete n0 a0 m1について場合分け *)
-          assert (H_eqml : m=l).
-          admit. 
-          rewrite H_eqml.
-          reflexivity.
-          
-        (* op1 = deleteの時 *)
-      (* op2 = deleteの時 *)
-        (* op1 = insertの時 *)
-        
-        (* op1 = deleteの時 *)
+    destruct op1.
+      destruct (interp_op (OpDel n a) m1) as [m' | ].
+      (*rewrite ot_inverse_property_ip1.*)
+
+
 Admitted.
 
 Instance OTBaseListSC {A : Type} `{Eq A} : OTBase (list A) (Op A) :=
@@ -149,13 +192,6 @@ Instance OTBaseListSC {A : Type} `{Eq A} : OTBase (list A) (Op A) :=
   it := it_sc;
   it_c1 := fun op1 op2 f m m1 m2 =>
           ot_convergence_property_c1 A op1 op2 f m m1 m2;
-}.
-
-(* TODO:型クラスOTInv のインスタンスの作成に必要な補題ot_inv_propertyの証明 *)
-Class OTInv [A : Type] `{Eq A} :=
-{
-  inv := @inv_op 
-  ip1 : forall op m mr, interp op m = Some mr -> interp (inv op) mr = (Some m)
 }.
 
 (* TODO:型クラスOTInv のインスタンスの作成 -> 証明 *)
