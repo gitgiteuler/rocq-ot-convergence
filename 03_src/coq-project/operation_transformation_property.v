@@ -10,6 +10,7 @@ Check (1 ::2:: 3 :: []).
 Class Eq A := {
   eqb : A -> A -> bool;
   eqb_refl : forall (x : A), eqb x x = true;
+  (*eqP : forall (x y : A), (eqb x y = true) = (x = y)*)
 }.
 
 Notation "x =? y" := (eqb x y).
@@ -18,6 +19,7 @@ Instance eqNat : Eq nat :=
 {
   eqb := Nat.eqb;
   eqb_refl := Nat.eqb_refl;
+  (*eqP := fun x y => if eqb x y then (x = y) else (x  y)*)
 }.
 
 Instance eqBool : Eq bool := 
@@ -109,13 +111,47 @@ Compute Nat.ltb 1 2. (* 1 < 2 と言う命題が”真” *)
 Compute S 0.
 Compute Nat.eqb (S 0) 1.
 
+Lemma insert_delete_inverse (A : Type) `{Eq A}:
+  forall (p : nat) (x : A) (l l' : list A),
+    insert p x l = Some l' -> delete p x l' = Some l.
+Proof.
+  induction p as [ | p'].
+  (* p = 0 *)
+    intros x l l' H_ins.
+    simpl in H_ins.
+    inversion H_ins. (* Some (x :: l) = Some l'から中身の等価性を示す*)
+    simpl.
+    rewrite eqb_refl.
+    reflexivity.
+  (* p = S p' *)
+    intros x l l' H_ins_sp'.
+    destruct l.
+    (* l = [] *)
+    simpl in H_ins_sp'.
+    discriminate.
+    (* l = a :: l *)
+    simpl in H_ins_sp'.
+    destruct (insert p' x l) eqn:H_ins_p'.
+    rename l0 into l''.
+      (* Some l'' *)
+      inversion H_ins_sp'.
+      simpl.
+      specialize (IHp' x l l'' H_ins_p').
+      rewrite IHp'.
+      reflexivity.
+      (* None *)
+      simpl.
+      discriminate.
+Qed.
+
 (* TODO:合流性c1の証明に必要な補題ip1の証明 *)
 Lemma ot_inverse_property_ip1 (A : Type) `{Eq A} :
-  forall op m mr, interp_op op m = Some mr -> interp_op (inv_op op) mr = Some m.
+  forall op m mr, interp_op op m = Some mr ->
+   interp_op (inv_op op) mr = Some m.
 Proof.
   intros op m mr H_op.
   destruct op.
-    (* op = OpIns n aの場合 *)
+  (* op = OpIns n aの場合 *)
     unfold inv_op.
     unfold interp_op.
     induction n as [| n' IHn'].
@@ -149,6 +185,7 @@ Proof.
           discriminate H_op.
           discriminate H_op.
           (* Some l' *)
+          simpl in *.
           simpl in H_op.
           destruct (insert n' a t).
           injection H_op as Hh' Ht'.
