@@ -10,7 +10,7 @@ Check (1 ::2:: 3 :: []).
 Class Eq A := {
   eqb : A -> A -> bool;
   eqb_refl : forall (x : A), eqb x x = true;
-  (*eqP : forall (x y : A), (eqb x y = true) = (x = y)*)
+  eqP : forall (x y : A), (eqb x y = true) <-> (x = y);
 }.
 
 Notation "x =? y" := (eqb x y).
@@ -19,17 +19,15 @@ Instance eqNat : Eq nat :=
 {
   eqb := Nat.eqb;
   eqb_refl := Nat.eqb_refl;
-  (*eqP := fun x y => if eqb x y then (x = y) else (x  y)*)
+  eqP := Nat.eqb_eq;
 }.
 
-Instance eqBool : Eq bool := 
+(*Instance eqBool : Eq bool := 
 {
   eqb := Bool.eqb;
-  eqb_refl := fun x => match x with
-                       | true => eq_refl
-                       | false => eq_refl
-                       end
+  eqb_refl := fun x => eqb x x then true else false;
 }.
+*)
 
 Compute (eqb 1 1).
 Compute (eqb 1 2).
@@ -143,6 +141,32 @@ Proof.
       simpl.
       discriminate.
 Qed.
+
+Lemma delete_insert_inverse (A : Type) `{Eq A}:
+ forall (p : nat) (x : A) (l l' : list A),
+  delete p x l' = Some l -> insert p x l = Some l'.
+Proof.
+  induction p as [| p'].
+  (* p = 0 *)
+    intros x l l' H_del.
+    simpl in *.
+    destruct l' as [| h t].
+      discriminate.
+      destruct (h =? x) eqn:Hx; try discriminate H_del.
+      inversion H_del; subst.
+      apply eqP in Hx.
+      rewrite Hx.
+      reflexivity.
+  (* p = S p' *)
+    intros x l l' H_del_sp'.
+    destruct l.
+    (* l = [] *)
+      simpl in H_del_sp'.
+      destruct l' as [ | h t].
+      discriminate.
+      destruct 
+    (* l = a :: l *)
+
 
 (* TODO:合流性c1の証明に必要な補題ip1の証明 *)
 Lemma ot_inverse_property_ip1 (A : Type) `{Eq A} :
